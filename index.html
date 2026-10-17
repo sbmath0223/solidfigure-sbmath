@@ -1765,7 +1765,7 @@ function rewriteQuiz(){
 }
 async function submitQuiz(){
   const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 제출하지 않습니다.','warn'); return;}
-  if(!user){setQMsg('먼저 위에서 학번과 이름을 입력해 로그인하십시오.','warn'); return;}
+  if(!user){setQMsg('먼저 위에서 학번, 이름, 코드번호를 입력해 로그인하십시오.','warn'); return;}
   const answers=spec.qs.map((q,i)=>String($('qa'+i).value).trim());
   const blank=answers.findIndex(a=>!a); if(blank>=0){setQMsg('빈칸이 있습니다. 모든 칸을 채우면 제출할 수 있습니다.','warn'); const el=$('qa'+blank); if(el)el.focus(); return;}
   const correct=spec.grade?spec.grade(answers):spec.correct?answers.map((a,i)=>(String(+a)===spec.correct[i]||a.replace(/\s/g,'')===spec.correct[i])?'O':'X'):[];
@@ -2109,7 +2109,7 @@ TA().forEach(t=>t.addEventListener('input',()=>{saveText(); gate();}));
 /* ----- STEP 1 마치기 ----- */
 function okCount(){return Object.keys(rec).filter(k=>rec[k]==='solid').length;}
 function missing(){
-  const m=[]; if(!user)m.push('위에서 학번과 이름으로 로그인하십시오.');
+  const m=[]; if(!user)m.push('먼저 위에서 학번, 이름, 코드번호를 입력해 로그인하십시오.');
   if(okCount()<5)m.push(`입체가 되는 조합을 5가지 모두 찾으십시오. (${okCount()}/5)`);
   if(TA().some(t=>!t.value.trim()))m.push('탐구내용 정리 4문항에 모두 답하십시오.');
   return m;
