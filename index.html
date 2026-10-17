@@ -163,13 +163,66 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:24px}
 .foot{text-align:center; color:var(--muted); font-size:12px}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--accent); outline-offset:2px}
-@media (max-width:1040px){
+@media (max-width:900px){
   html,body{height:auto}
   .shell{height:auto; display:flex; flex-direction:column}
   .grid{display:flex; flex-direction:column}
   .center{order:1} .grid .ctlpanel{order:2} .grid .quizpanel{order:3}
   .stage{flex:none; height:min(60vh,520px); min-height:280px}
   .panel{overflow:visible}
+}
+/* ----- 노트북·낮은 화면: 조작 패널이 스크롤 없이 한 화면에 들어가도록 간격을 줄임 ----- */
+@media (min-width:901px) and (max-height:820px){
+  body{padding-block:6px}
+  .shell{gap:6px}
+  .bar h1{font-size:24px}
+  .tabs button{padding:6px 20px}
+  .grid>aside:first-child{padding:10px 12px}
+  .grid>aside:first-child .grp{margin-bottom:9px}
+  .grid>aside:first-child .lbl{font-size:16px; margin-bottom:3px; line-height:1.3}
+  .grid>aside:first-child .btn,.grid>aside:first-child .seg .btn,.grid>aside:first-child .seg .chip{height:32px}
+  .grid>aside:first-child select{height:34px}
+  .grid>aside:first-child .btn.wide{margin-top:4px}
+  .grid>aside:first-child input[type=range]{height:20px}
+  .grid>aside:first-child .ends{font-size:11px; line-height:1.2}
+  .grid>aside:first-child .seg,.grid>aside:first-child .row2{margin-top:3px}
+  #w5>aside:first-child .grp{margin-bottom:9px}
+  #w5_play{margin-top:6px!important} #w5_comp{margin-top:5px!important}
+}
+@media (min-width:901px) and (max-height:700px){
+  .bar h1{font-size:22px}
+  .tabs button{padding:5px 18px}
+  .grid>aside:first-child{padding:8px 12px}
+  .grid>aside:first-child .grp{margin-bottom:5px}
+  .grid>aside:first-child .lbl{font-size:15px; margin-bottom:1px}
+  .grid>aside:first-child .btn,.grid>aside:first-child .seg .btn,.grid>aside:first-child .seg .chip{height:29px; font-size:13.5px}
+  .grid>aside:first-child select{height:30px}
+  .grid>aside:first-child .btn.wide{margin-top:3px}
+  .grid>aside:first-child input[type=range]{height:16px}
+  .grid>aside:first-child .ends{font-size:10.5px}
+  #w5>aside:first-child .grp{margin-bottom:5px}
+  #w5_play{margin-top:4px!important} #w5_comp{margin-top:3px!important}
+}
+/* ----- 태블릿 가로: 3단 배치를 유지하되 좌우 패널 폭을 줄임 ----- */
+@media (min-width:901px) and (max-width:1180px){
+  .grid{grid-template-columns:236px minmax(0,1fr) 270px}
+  #w5.grid{grid-template-columns:236px minmax(0,1fr) 290px}
+  .grid>aside:first-child .lbl{font-size:16px}
+  .grid>aside:first-child .seg .btn,.grid>aside:first-child .seg .chip{font-size:13.5px}
+  .hud .name,#w5 .hud .name{font-size:24px}
+  .grid>aside:first-child .row2 .btn{padding:0 4px; font-size:13px; min-width:0}
+}
+/* ----- 태블릿 세로: 3D 화면 아래 조작 패널을 2열로 배치해 한 화면에 담음 ----- */
+@media (min-width:601px) and (max-width:900px){
+  .stage,#w5.grid .stage{height:min(40vh,440px); min-height:290px}
+  #w5.grid>aside:first-child>.grp:nth-child(1){grid-column:2; grid-row:1}
+  #w5.grid>aside:first-child>.grp:nth-child(2){grid-column:1; grid-row:1}
+  #w5.grid>aside:first-child>.grp:nth-child(3){grid-column:1; grid-row:2}
+  #w5.grid>aside:first-child>.grp:nth-child(4){grid-column:2; grid-row:2}
+  .grid>aside:first-child .ctl:not([hidden]){display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); column-gap:18px; align-items:start}
+  #w5>aside:first-child{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); column-gap:18px; align-content:start; align-items:start}
+  .grid>aside:first-child .grp{margin-bottom:10px}
+  #w5>aside:first-child .grp{margin-bottom:10px}
 }
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
@@ -251,7 +304,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:24px}
 #w5 .prog b{font-family:var(--f-display); font-weight:400; font-size:18px; color:var(--ok)}
 #w5 .q{margin:0 0 12px}
 #w5 .q p{margin:0 0 4px; font-weight:500}
-@media (max-width:1040px){ #w5 > .center{order:1} #w5 > aside:first-of-type{order:2} #w5 > aside:last-of-type{order:3} #w5 .panel{overflow:visible} #w5{display:flex; flex-direction:column; min-height:0} #w5 .stage{min-height:340px; flex:none}}
+@media (max-width:900px){ #w5 > .center{order:1} #w5 > aside:first-of-type{order:2} #w5 > aside:last-of-type{order:3} #w5 .panel{overflow:visible} #w5{display:flex; flex-direction:column; min-height:0} #w5 .stage{min-height:340px; flex:none}}
 
 #w5{grid-template-columns:292px minmax(0,1fr) 340px; position:relative}
 #w5 .panel{overflow:auto}
