@@ -43,7 +43,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .login input{width:104px; height:34px; padding:0 10px; border:1px solid var(--line); border-radius:8px; background:var(--panel)}
 .login .who{font-weight:700}
 .login input::placeholder{color:transparent}
-.login .lmsg{flex-basis:100%; font-size:12.5px; color:var(--warn)}
+.login form{position:relative}
+.login .lmsg{position:absolute; left:0; top:calc(100% + 4px); z-index:30; width:max-content; max-width:100%; padding:5px 10px; border-radius:8px; background:var(--panel); border:1px solid var(--warn); box-shadow:var(--shadow); font-size:12.5px; line-height:1.35; color:var(--warn)}
+.login .lmsg[hidden]{display:none}
 .tabs{display:flex; gap:8px; flex-wrap:wrap}
 .tabg{display:inline-flex; align-items:center; gap:4px}
 .tabs button.lockbtn{width:34px; height:34px; padding:0; border-radius:50%; font-size:15px; line-height:1; color:var(--ink)}
@@ -329,7 +331,7 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:24px}
   .login form input{width:100%!important; min-width:0; font-size:14px; padding:0 8px}
   .login input::placeholder{color:var(--muted); opacity:.85}
   .login form .btn{padding:0 12px; white-space:nowrap}
-  .login .lmsg{grid-column:1/-1}
+  .login .lmsg{grid-column:auto}
   .hud .name,#w5 .hud .name{font-size:22px}
   .hud.tl{max-width:calc(100% - 150px)}
   #w5 .hud.tl{max-width:calc(100% - 28px)}
@@ -656,15 +658,19 @@ function makePrism(n,h,r=1,fs,irr){
   for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n+(i+1)%n,n+i]); kinds.push('side');}
   return finishPoly(verts,faces,kinds,{fs,family:'prism',n,name:K[n]+'각기둥',baseText:K[n]+'각형',sideText:'직사각형'});
 }
+const PYR_ROT={4:-0.55,5:-0.26,6:-0.28};   /* 정사각뿔·정오각뿔·정육각뿔만: 기본 시점에서 입체감이 잘 보이도록 모형을 살짝 돌려 둠(라디안) */
 function makePyramid(n,h,r=1,fs,irr){
-  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  let B=basePts(n,r,irr), verts=[];
+  if(PYR_ROT[n]&&!(irr&&irr.length===n)){const c=Math.cos(PYR_ROT[n]),sn=Math.sin(PYR_ROT[n]); B=B.map(p=>[p[0]*c+p[1]*sn,-p[0]*sn+p[1]*c]);} B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
   verts.push(V(0,h/2,0));
   const faces=[range(n)], kinds=['base'];
   for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n]); kinds.push('side');}
   return finishPoly(verts,faces,kinds,{fs,family:'pyramid',n,name:K[n]+'각뿔',baseText:K[n]+'각형',sideText:'삼각형'});
 }
+const FRU_ROT={4:-0.37};   /* 정사각형 밑면의 사각뿔대만: 기본 시점에서 입체감이 잘 보이도록 모형을 살짝 돌려 둠(라디안) */
 function makeFrustum(n,h,ratio,r=1,fs,irr){
-  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  let B=basePts(n,r,irr), verts=[];
+  if(FRU_ROT[n]&&!(irr&&irr.length===n)){const c=Math.cos(FRU_ROT[n]),sn=Math.sin(FRU_ROT[n]); B=B.map(p=>[p[0]*c+p[1]*sn,-p[0]*sn+p[1]*c]);} B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
   B.forEach(p=>verts.push(V(p[0]*ratio,h/2,p[1]*ratio)));
   const faces=[range(n),range(n).map(i=>n+i)], kinds=['base','base'];
   for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n+(i+1)%n,n+i]); kinds.push('side');}
@@ -1668,16 +1674,16 @@ function loginMsg(t){const m=$('loginMsg'); m.textContent=t||''; m.hidden=!t;}
 $('loginForm').addEventListener('submit',async e=>{
   e.preventDefault(); const sid=$('sid').value.trim(), name=$('sname').value.trim(), code=$('scode').value.trim().toLowerCase();
   if(!sid||!name||!code){(!sid?$('sid'):!name?$('sname'):$('scode')).focus(); loginMsg('학번, 이름, 코드번호를 모두 입력하십시오.'); return;}
-  const b=$('loginBtn'); 
+  const b=$('loginBtn'); let r=null, fail=false;
   if(SHEET_URL){
-    b.disabled=true; b.textContent='확인 중…'; let r=null, fail=false;
-    try{r=await lockFetch({q:'action=login&sid='+encodeURIComponent(sid)+'&name='+encodeURIComponent(name)+'&code='+encodeURIComponent(code)});}catch(err){fail=true;}
+    b.disabled=true; b.textContent='확인 중…';
+    try{r=await lockFetch({q:loadQuery({sid,name,code})});}catch(err){fail=true;}
     b.disabled=false; b.textContent='로그인';
     if(fail){loginMsg('연결하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주십시오.'); return;}
     if(!r||!r.ok){loginMsg('학번, 이름, 코드번호를 다시 확인하십시오.'); return;}
   }
   loginMsg(''); user={sid,name,code}; try{localStorage.setItem('sl_user',JSON.stringify(user));}catch(err){}
-  loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();
+  loadSubs(); if(SHEET_URL&&r)applyRemote(r); loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();
 });
 $('logoutBtn').addEventListener('click',()=>{user=null; try{localStorage.removeItem('sl_user');}catch(e){} $('sid').value=''; $('sname').value=''; $('scode').value=''; loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();});
 
@@ -1757,6 +1763,42 @@ function renderQuiz(){
   spec.qs.forEach((q,i)=>{const el=$('qa'+i); if(el)el.addEventListener('input',()=>{if(!T){dr[i]=el.value; drafts[spec.key]=dr; const k=spec.shared&&spec.shared[i]; if(k)drafts[k]=el.value; saveDrafts(); }});});
   $('qSave').addEventListener('click',saveQuiz); $('qDone').addEventListener('click',()=>{const sv=subs[spec.key]; if(!teacher&&sv&&!sv.open)rewriteQuiz(); else submitQuiz();});
 }
+/* 시트로 보내고, 서버가 실제로 저장했다고 답할 때만 'sent'. 거부되면 'rejected', 연결 실패·알 수 없는 응답이면 'fail' */
+async function postSheet(payload){
+  try{
+    const r=await fetch(SHEET_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+    const j=await r.json();
+    return j&&j.ok?'sent':'rejected';
+  }catch(e){return 'fail';}
+}
+/* 시트(서버)에 저장된 이 학생의 제출·임시저장 내용을 불러와 화면용 저장소에 반영한다. 시트 내용이 우선한다. */
+function applyRemote(r){
+  if(!user||!r)return; const sid=user.sid, R=r.subs||{}, old=Object.keys(subs);
+  subs={}; Object.keys(R).forEach(k=>{if(k!=='step1')subs[k]={answers:R[k].answers,time:R[k].time||''};}); saveSubs();
+  /* 제출 내용은 시트가 기준: 시트에 있으면 그 답을 채우고, 예전에 제출했는데 시트에서 지워졌으면 빈칸으로 되돌린다. 제출한 적 없는 임시저장은 이 기기 것을 그대로 둔다. */
+  Object.keys(subs).forEach(k=>{drafts[k]=subs[k].answers.slice();});
+  old.forEach(k=>{if(!subs[k])delete drafts[k];});
+  ['poly:prism','poly:pyramid','poly:frustum'].forEach(k=>{if(subs[k])drafts['poly:common']=subs[k].answers[0];});
+  if(old.some(k=>/^poly:/.test(k))&&!Object.keys(subs).some(k=>/^poly:/.test(k)))delete drafts['poly:common'];
+  saveDrafts();
+  try{
+    const wasDone=localStorage.getItem('sl_s1_'+sid)==='1';
+    if(R.step1){
+      localStorage.setItem('sl_s1_'+sid,'1'); localStorage.setItem('sl_s1time_'+sid,R.step1.time||''); localStorage.removeItem('sl_s1open_'+sid);
+      localStorage.setItem('sl_w5_'+sid+'_txt3',JSON.stringify(R.step1.answers));
+      localStorage.setItem('sl_w5_'+sid+'_rec',JSON.stringify({'3_3':'solid','3_4':'solid','3_5':'solid','4_3':'solid','5_3':'solid'}));   /* 제출하려면 5가지를 모두 찾아야 하므로 */
+    }else if(wasDone){
+      ['sl_s1_','sl_s1time_','sl_s1open_','sl_w5_'].forEach(p=>{localStorage.removeItem(p+sid);}); localStorage.removeItem('sl_w5_'+sid+'_txt3'); localStorage.removeItem('sl_w5_'+sid+'_rec');
+    }
+  }catch(e){}
+}
+function afterRemote(){renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();}
+function loadQuery(u){return 'action=load&sid='+encodeURIComponent(u.sid)+'&name='+encodeURIComponent(u.name)+'&code='+encodeURIComponent(u.code);}
+async function syncFromSheet(){
+  if(!SHEET_URL||!user)return;
+  try{const r=await lockFetch({q:loadQuery(user)}); if(r&&r.ok){applyRemote(r); afterRemote();}}catch(e){}
+}
+function sendFailMsg(res){return res==='rejected'?'제출되지 않았습니다. 학번, 이름, 코드번호가 맞는지 다시 확인하고 선생님께 말씀드립니다.':'전송에 실패했습니다. 인터넷 연결을 확인하고 [제출하기]를 다시 누르십시오.';}
 function setQMsg(t,cls){const m=$('qMsg'); if(!m)return; m.textContent=t; m.className='qmsg '+(cls==='warn'?'warn':'ok');}
 function saveQuiz(){
   const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 저장하지 않습니다.','warn'); return;}
@@ -1778,8 +1820,8 @@ async function submitQuiz(){
   const payload={time:new Date().toLocaleString('ko-KR'),sid:user.sid,name:user.name,code:user.code||'',tab:spec.tab,shape:spec.shape,n:spec.n,answers,correct,score:correct.filter(c=>c==='O').length,total:correct.length};
   $('qDone').disabled=true; setQMsg('제출하는 중입니다…','');
   let res='local';
-  if(SHEET_URL){try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); res='sent';}catch(e){res='fail';}}
-  if(res==='fail'){$('qDone').disabled=false; setQMsg('전송에 실패했습니다. 인터넷 연결을 확인하고 [제출하기]를 다시 누르십시오.','warn'); return;}
+  if(SHEET_URL)res=await postSheet(payload);
+  if(res!=='sent'&&res!=='local'){$('qDone').disabled=false; setQMsg(sendFailMsg(res),'warn'); return;}
   subs[spec.key]={answers,time:payload.time}; saveSubs(); drafts[spec.key]=answers.slice(); if(spec.shared)Object.keys(spec.shared).forEach(i=>{drafts[spec.shared[i]]=answers[i];}); saveDrafts();
   spec.qs.forEach((q,i)=>{const el=$('qa'+i); if(el)el.disabled=true;}); { const bd=$('qDone'); bd.textContent='수정하기'; bd.classList.remove('primary'); bd.disabled=false; }
   setQMsg(payload.time+' 제출을 완료했습니다. 수정 후 제출하기를 다시 누를 수 있습니다.','ok');
@@ -2153,9 +2195,9 @@ $('submit').addEventListener('click',async()=>{
   const payload={time:new Date().toLocaleString('ko-KR'),sid:user.sid,name:user.name,code:user.code||'',tab:'정다면체',shape:'STEP 1 정다면체 만들기',n:okCount(),answers,correct,score:correct.filter(c=>c==='O').length,total:correct.length};
   $('submit').disabled=true; s1Msg('제출하는 중입니다…');
   let res='local';
-  if(SHEET_URL){try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); res='sent';}catch(e){res='fail';}}
+  if(SHEET_URL)res=await postSheet(payload);
   $('submit').disabled=false;
-  if(res==='fail'){s1Msg('전송에 실패했습니다. 인터넷 연결을 확인하고 [제출하기]를 다시 누르십시오.',true); return;}
+  if(res!=='sent'&&res!=='local'){s1Msg(sendFailMsg(res),true); return;}
   markS1Done(); setS1Open(false); try{localStorage.setItem(s1TimeKey(),payload.time);}catch(e){} gate();
   s1Msg(s1DoneMsg());
 });
@@ -2201,7 +2243,7 @@ requestAnimationFrame(loop);
 })();
 
 /* --- 시작 --- */
-loadSubs(); syncLogin(); applyTheme(); rebuildSolid(); syncCtl(); renderUnder(); renderQuiz(); updateHud(); resize(); placeCamera(); syncView(); fetchLocks();
+loadSubs(); syncLogin(); applyTheme(); rebuildSolid(); syncCtl(); renderUnder(); renderQuiz(); updateHud(); resize(); placeCamera(); syncView(); fetchLocks(); syncFromSheet();
 window.__lab={S,get model(){return model;},get net(){return net;},setMode,toggleSec,selectTab};
 requestAnimationFrame(loop);
 })();
