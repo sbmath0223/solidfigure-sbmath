@@ -1,0 +1,2154 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>입체도형 탐구실</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* 레이아웃: 상단 로그인·탭 / 좌 조작 탭 · 중앙 3D 화면 · 우 퀴즈 탭. 좁은 화면에서는 3D → 조작 → 퀴즈 순으로 쌓임 */
+:root{
+  --bg:#EDF1F5; --panel:#FFFFFF; --panel2:#F4F7FA; --ink:#17212B; --muted:#5B6874; --line:#D3DBE3;
+  --accent:#2457D6; --accent-ink:#FFFFFF; --accent-soft:#E3EBFC; --hot:#2B6CB0; --hot-soft:#FDE8DC; --ok:#17855A; --warn:#B4231A;
+  --stage:#F8FAFD; --stage2:#DEE6EF; --edge:#17212B; --shadow:0 1px 2px rgba(20,30,45,.06),0 4px 14px rgba(20,30,45,.06);
+  --f-display:'Do Hyeon','Noto Sans KR',system-ui,sans-serif;
+  --f-body:'Noto Sans KR',system-ui,-apple-system,'Malgun Gothic','Apple SD Gothic Neo',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1319; --panel:#171E27; --panel2:#1E2732; --ink:#E7ECF2; --muted:#9BA8B6; --line:#2A3542;
+    --accent:#7BA3FF; --accent-ink:#0B1530; --accent-soft:#1D2A47; --hot:#FF8A47; --hot-soft:#3A2A21; --ok:#4CC38A; --warn:#FF7A70;
+    --stage:#18212C; --stage2:#0D1218; --edge:#E4EBF3; --shadow:none; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1319; --panel:#171E27; --panel2:#1E2732; --ink:#E7ECF2; --muted:#9BA8B6; --line:#2A3542;
+  --accent:#7BA3FF; --accent-ink:#0B1530; --accent-soft:#1D2A47; --hot:#FF8A47; --hot-soft:#3A2A21; --ok:#4CC38A; --warn:#FF7A70;
+  --stage:#18212C; --stage2:#0D1218; --edge:#E4EBF3; --shadow:none; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{word-break:keep-all; overflow-wrap:break-word}
+input,textarea{word-break:normal}
+body{
+  margin:0; background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:14px; line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px)); padding-block:10px;
+}
+button,input,select,textarea{font:inherit;color:inherit}
+.shell{height:100%; display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; gap:10px; min-height:0}
+.bar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.bar h1{margin:0; font-family:var(--f-display); font-weight:400; font-size:28px; line-height:1.1}
+.bar h1 span{font-size:18px; color:var(--accent); margin-left:4px}
+.login{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.login form,.login .info{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+.login label{display:flex; align-items:center; gap:6px; color:var(--muted); font-size:13px}
+.login input{width:104px; height:34px; padding:0 10px; border:1px solid var(--line); border-radius:8px; background:var(--panel)}
+.login .who{font-weight:700}
+.login input::placeholder{color:transparent}
+.login .lmsg{flex-basis:100%; font-size:12.5px; color:var(--warn)}
+.tabs{display:flex; gap:8px; flex-wrap:wrap}
+.tabg{display:inline-flex; align-items:center; gap:4px}
+.tabs button.lockbtn{width:34px; height:34px; padding:0; border-radius:50%; font-size:15px; line-height:1; color:var(--ink)}
+.tabs button.lockbtn[hidden]{display:none}
+.tabs button.lockbtn.on{background:var(--accent-soft); border-color:var(--accent)}
+.tbar{margin:8px 0 0; padding:8px 12px; border:1px dashed var(--accent); border-radius:10px; background:var(--accent-soft); font-size:13px}
+.tbar[hidden]{display:none}
+.tbar .tlink{color:var(--accent)}
+.tabs button{border:1px solid var(--line); background:var(--panel); border-radius:999px; padding:8px 22px; cursor:pointer; font-weight:700; color:var(--muted); box-shadow:var(--shadow)}
+.tabs button[aria-selected="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.grid{display:grid; grid-template-columns:292px minmax(0,1fr) 316px; gap:12px; min-height:0}
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; overflow:auto; min-width:0; box-shadow:var(--shadow)}
+.panel h2{margin:0 0 10px; font-family:var(--f-display); font-weight:400; font-size:19px}
+.grp{margin-bottom:16px}
+.grp:last-child{margin-bottom:0}
+.lbl{display:block; font-family:var(--f-display); font-weight:400; font-size:19px; margin-bottom:6px}
+select,.nrow input[type=number]{width:100%; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2)}
+.btn{height:36px; padding:0 14px; border:1px solid var(--line); background:var(--panel2); border-radius:10px; cursor:pointer; font-weight:500; white-space:nowrap}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
+.btn.on{background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:700}
+.btn.wide{display:block; width:100%; margin-top:6px; text-align:left}
+.btn:disabled{opacity:.45; cursor:not-allowed}
+.seg{display:grid; gap:8px; margin-top:6px}
+.seg[data-n="2"],.seg[data-n="4"]{grid-template-columns:repeat(2,1fr)}
+.seg[data-n="3"]{grid-template-columns:repeat(3,1fr)}
+.seg[data-n="5"]{grid-template-columns:repeat(6,1fr)}
+.seg[data-n="5"]>*{grid-column:span 2}
+.seg[data-n="5"]>:nth-child(n+4){grid-column:span 3}
+.seg [hidden]{display:none}
+.seg .btn,.seg .chip{height:36px; padding:0 4px; text-align:center; white-space:nowrap; font-size:15px}
+.seg .btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700}
+.row2{display:flex; gap:8px; margin-top:8px}
+.row2 .btn{flex:1}
+.nrow{display:grid; grid-template-columns:68px 1fr; gap:10px; align-items:center}
+.nrow.gen{grid-template-columns:1fr auto}
+input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:24px}
+.ends{display:flex; justify-content:space-between; font-size:12px; color:var(--muted)}
+.val{float:right; color:var(--ink); font-variant-numeric:tabular-nums}
+.msg{font-size:12.5px; margin:8px 0 0; color:var(--muted)}
+.msg.warn{color:var(--warn)}
+.center{display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0}
+.stage{position:relative; flex:1; min-height:300px; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:radial-gradient(ellipse at 50% 40%, var(--stage), var(--stage2)); box-shadow:var(--shadow)}
+#gl,#draw{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none}
+#gl{cursor:grab} #gl:active{cursor:grabbing}
+#draw{background:var(--stage); cursor:crosshair}
+.hud{position:absolute; z-index:2; pointer-events:none}
+.stagebtn{position:absolute; right:14px; bottom:12px; z-index:3; background:var(--panel)}
+.stagebtns{position:absolute; right:14px; top:44px; z-index:3; display:flex; flex-direction:column; gap:8px}
+.stagebtns.w5btns{top:12px}
+.stagebtns .btn{position:relative; background:var(--panel); width:38px; height:38px; padding:0; display:grid; place-items:center}
+.stagebtns .btn svg{width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round}
+.stagebtns .btn svg .f{fill:currentColor; stroke:none}
+.stagebtns .btn.warnb{border-color:var(--warn); color:var(--warn)}
+.stagebtns .btn.js-auto.on svg{animation:spinI 2.4s linear infinite}
+@keyframes spinI{to{transform:rotate(360deg)}}
+.stagebtns .btn::after{content:attr(data-tip); position:absolute; right:calc(100% + 8px); top:50%; transform:translateY(-50%); background:#1B2230; color:#fff; font-size:12px; font-weight:500; padding:5px 9px; border-radius:7px; white-space:nowrap; pointer-events:none; opacity:0; transition:opacity .12s}
+.stagebtns .btn.on::after,.stagebtns .btn.nt::after{display:none}
+.stagebtns .btn.on.tip::after{display:block}
+.stagebtns .btn.tip::after,.stagebtns .btn:focus-visible::after{opacity:1}
+@media (hover:hover){.stagebtns .btn:hover::after{opacity:1}}
+.stagebtns .btn[hidden]{display:none}
+#w5 .stagebtns .btn{width:38px; height:38px; padding:0}
+.hud.tl{left:14px; top:12px} .hud.tr{right:14px; top:12px; text-align:right} .hud.bl{left:14px; bottom:10px}
+.hud .name{font-family:var(--f-display); font-size:28px; line-height:1.1}
+.hud .sub{font-size:13px; color:var(--muted)}
+.hud .legend{font-size:12px; color:var(--muted); display:flex; gap:12px; align-items:center; justify-content:flex-end}
+.hud .legend i{display:inline-block; width:26px; height:0; border-top:2px solid var(--edge); vertical-align:middle; margin-right:5px}
+.hud .legend i.d{border-top-style:dashed; opacity:.7}
+.hud .hint{font-size:12px; color:var(--muted)}
+.under{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px}
+.u-row{display:flex; align-items:center; gap:12px; flex-wrap:wrap}
+.u-row label{font-weight:700; font-size:13px; min-width:5.5em}
+.u-row input[type=range]{flex:1; min-width:140px}
+.u-row output{font-variant-numeric:tabular-nums; font-weight:700; min-width:3.4em; text-align:right}
+.u-note{font-size:13px; color:var(--muted)}
+.u-note.warn{color:var(--warn)}
+.u-note.em{color:var(--ink)}
+.chipx{display:inline-flex; align-items:center; gap:6px; background:var(--accent-soft); color:var(--accent); border-radius:999px; padding:3px 12px; font-size:13px}
+.chipx b{font-size:14px}
+.quiz ol{margin:0; padding:0; list-style:none; counter-reset:q; display:flex; flex-direction:column; gap:12px}
+.quiz li{counter-increment:q; padding-left:30px; position:relative}
+.quiz li::before{content:counter(q); position:absolute; left:0; top:0; width:22px; height:22px; border-radius:50%; background:var(--accent-soft); color:var(--accent); font-weight:700; font-size:12px; display:grid; place-items:center}
+.quiz li label{display:block; font-weight:500; margin-bottom:5px}
+.quiz li input,.quiz li select,.quiz li textarea{width:100%; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2)}
+.quiz li textarea{height:96px; padding:8px 10px; resize:vertical}
+.quiz li input:disabled,.quiz li select:disabled,.quiz li textarea:disabled{opacity:.8; background:var(--accent-soft)}
+.quiz .qtab{width:100%; border-collapse:separate; border-spacing:4px; table-layout:fixed}
+.quiz .qtab th{font-size:12px; font-weight:500; color:var(--muted); padding:0; text-align:center}
+.quiz .qtab th.r{text-align:left; width:64px; white-space:nowrap; color:var(--ink)}
+.quiz .qtab td{padding:0}
+.quiz .qtab input{height:34px; padding:0 4px; text-align:center}
+.quiz .qrow{display:grid; grid-template-columns:96px 1fr; align-items:center; gap:8px; margin-bottom:6px}
+.quiz .qrow label{margin:0; font-weight:400; font-size:13px}
+.quiz .qtag{font-family:var(--f-body); font-size:14px; font-weight:700; background:var(--accent-soft); color:var(--accent); border-radius:999px; padding:3px 12px; margin-left:8px; vertical-align:middle; white-space:nowrap}
+.quiz .shape{background:var(--panel2); border-radius:10px; padding:8px 12px; margin-bottom:12px; font-size:13px; color:var(--muted)}
+.quiz .shape b{color:var(--ink)}
+.quiz .acts{display:flex; gap:8px; margin-top:14px}
+.quiz .acts .btn{flex:1}
+.quiz .qmsg{font-size:13px; margin-top:10px; min-height:20px}
+.quiz .qmsg.ok{color:var(--ok)} .quiz .qmsg.warn{color:var(--warn)}
+.tabs button.locked{opacity:.6}
+.grid{position:relative}
+.lockov{position:absolute; inset:0; z-index:20; display:flex; align-items:center; justify-content:center; background:color-mix(in srgb,var(--bg,#fff) 70%,transparent); backdrop-filter:blur(1.5px); border-radius:14px; text-align:center; padding:20px}
+.lockov[hidden]{display:none}
+.lockov div{background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:22px 30px; font-size:16px; line-height:1.6}
+.lockov b{display:block; font-family:var(--f-display); font-weight:400; font-size:22px; margin-bottom:4px}
+.tlink{background:none; border:0; color:var(--muted); font-size:12px; cursor:pointer; text-decoration:underline; padding:0 0 0 8px}
+.tdlg{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; background:rgba(10,20,40,.45); padding:16px}
+.tdlg[hidden]{display:none}
+.tbox{background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); padding:20px; width:min(360px,100%)}
+.tbox h2{margin:0 0 12px; font-family:var(--f-display); font-weight:400; font-size:19px}
+.tbox input[type=password]{width:100%; height:36px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); color:inherit; box-sizing:border-box}
+.tbox .trow{gap:10px; display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line)}
+.tbox .tbtns{display:flex; gap:8px; margin-top:14px}
+.tbox .tbtns .btn{flex:1}
+.foot{text-align:center; color:var(--muted); font-size:12px}
+[hidden]{display:none!important}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+@media (max-width:1040px){
+  html,body{height:auto}
+  .shell{height:auto; display:flex; flex-direction:column}
+  .grid{display:flex; flex-direction:column}
+  .center{order:1} .grid .ctlpanel{order:2} .grid .quizpanel{order:3}
+  .stage{flex:none; height:min(60vh,520px); min-height:280px}
+  .panel{overflow:visible}
+}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+
+.views{position:relative; min-height:0; display:flex; flex-direction:column}
+.views > .grid,.views > .chooser{flex:1; min-height:0}
+.views > [hidden]{display:none !important}
+.chooser{background:var(--panel); border:1px solid var(--line); border-radius:14px; box-shadow:var(--shadow); display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:26px; padding:20px; overflow:auto}
+.chooser > :first-child{margin-top:auto}
+.chooser > :last-child{margin-bottom:auto}
+.chooser h2{margin:0; font-family:var(--f-display); font-weight:400; font-size:30px}
+.chooser .cards{display:flex; gap:28px; flex-wrap:wrap; justify-content:center; width:100%}
+.chooser .card{flex:0 1 440px; min-width:260px; border:1.5px solid var(--line); border-radius:18px; background:var(--panel2); overflow:hidden; box-shadow:var(--shadow); position:relative; display:flex; flex-direction:column; padding:0; cursor:pointer; text-align:left}
+.chooser .card:disabled{cursor:not-allowed; opacity:.62}
+.chooser .card.rec:not(:disabled){border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft),var(--shadow)}
+.chooser .card .img{height:250px; background:radial-gradient(ellipse at 50% 40%, var(--stage), var(--stage2)); display:flex; align-items:center; justify-content:center; border-bottom:1px solid var(--line)}
+.chooser .card .img img{height:100%; width:100%; object-fit:cover}
+.chooser .badge{position:absolute; left:14px; top:14px; background:var(--accent); color:var(--accent-ink); font-family:var(--f-display); font-size:18px; border-radius:999px; padding:2px 16px}
+.chooser .card.b2 .badge{background:var(--ok); color:#fff}
+.chooser .state{position:absolute; right:14px; top:14px; background:var(--panel); border:1px solid var(--line); font-weight:700; font-size:12.5px; border-radius:999px; padding:3px 12px}
+.chooser .state:empty{display:none}
+.chooser .body{padding:14px 20px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px}
+.chooser .body h3{margin:0; font-family:var(--f-display); font-weight:400; font-size:26px}
+.chooser .go{background:var(--accent); color:var(--accent-ink); font-weight:700; border-radius:10px; padding:8px 18px; white-space:nowrap}
+.chooser .card.b2 .go{background:var(--ok); color:#fff}
+.chooser .card:disabled .go{background:var(--line); color:var(--muted)}
+#w5{flex:1; display:grid; grid-template-columns:292px minmax(0,1fr) 340px; gap:12px; min-height:0}
+#w5 .panel{overflow:auto; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; min-width:0; box-shadow:var(--shadow)}
+#w5 .panel h2{margin:0 0 10px; font-family:var(--f-display); font-weight:400; font-size:19px}
+#w5 .lbl{display:block; font-family:var(--f-display); font-weight:400; font-size:19px; margin-bottom:6px}
+#w5 .grp{margin-bottom:16px}
+#w5 .chip{height:34px; padding:0 12px; border:1px solid var(--line); background:var(--panel2); border-radius:10px; cursor:pointer; font-weight:500}
+#w5 .chip[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--accent-ink); font-weight:700}
+#w5 .btn{height:36px; padding:0 14px; border:1px solid var(--line); background:var(--panel2); border-radius:10px; cursor:pointer; font-weight:500; white-space:nowrap}
+#w5 .btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent); font-weight:700}
+#w5 .btn.wide{width:100%}
+#w5 input[type=range]{width:100%; accent-color:var(--accent)}
+#w5 input[type=range]:disabled{opacity:.4}
+#w5 .ends{display:flex; justify-content:space-between; color:var(--muted); font-size:12px}
+.kbox{display:flex; align-items:center; gap:8px}
+.kbox .n{flex:1; text-align:center; font-family:var(--f-body); font-weight:500; font-size:16px}
+.kbox .btn{width:44px; padding:0; font-size:20px}
+#w5 .msg{font-size:12.5px; margin:8px 0 0; color:var(--muted)}
+#w5 .center{display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0}
+#w5 .stage{position:relative; flex:1; min-height:360px; border-radius:14px; overflow:hidden; border:1px solid var(--line); background:radial-gradient(ellipse at 50% 40%, var(--stage), var(--stage2))}
+#w5 .acts{display:flex; gap:8px; margin-top:14px}
+#w5 .acts .btn{flex:1; padding:0 6px}
+#w5 .stage canvas{position:absolute; inset:0; width:100%; height:100%; display:block; touch-action:none; cursor:grab}
+#w5 .hud{position:absolute; pointer-events:none}
+#w5 .hud.tl{left:14px; top:12px}
+#w5 .hud .name{font-family:var(--f-display); font-size:26px; line-height:1.1}
+#w5 .hud .sub{font-size:13px; color:var(--muted)}
+#w5 .hud.bl{left:14px; bottom:10px; font-size:12px; color:var(--muted)}
+#w5 .under{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px}
+#w5 .eq{font-size:16px}
+#w5 .eq b{font-family:var(--f-display); font-weight:400; font-size:20px}
+#w5 .gauge{position:relative; height:26px; border-radius:8px; background:var(--panel2); border:1px solid var(--line); overflow:hidden; display:flex}
+#w5 .gauge i{display:block; height:100%; border-right:2px solid var(--panel)}
+#w5 .gauge .mark{position:absolute; top:-2px; bottom:-2px; width:0; border-left:3px dashed var(--ink)}
+#w5 .gl{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); position:relative; height:16px}
+#w5 .gl span{position:absolute; transform:translateX(-50%); white-space:nowrap}
+#w5 .stage.deny::after{content:''; position:absolute; inset:0; z-index:4; pointer-events:none; background:rgba(220,38,38,.30); box-shadow:inset 0 0 0 4px rgba(220,38,38,.75); animation:denyflash .75s ease-out forwards}
+@keyframes denyflash{0%{opacity:0} 12%{opacity:1} 100%{opacity:0}}
+#w5 table.mx{border-collapse:separate; border-spacing:4px; width:100%; table-layout:fixed}
+#w5 .mx th{font-size:12px; font-weight:500; color:var(--muted); padding:0}
+#w5 .mx th.r{text-align:right; padding-right:4px; width:74px; font-size:12px}
+#w5 .mx td{padding:0}
+#w5 .cell{width:100%; height:46px; border-radius:8px; border:1px solid var(--line); background:var(--panel2); cursor:pointer; display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1.1}
+#w5 .cell .s{font-size:17px; font-weight:700}
+#w5 .cell .d{font-size:10.5px; color:var(--muted)}
+#w5 .cell.ok{background:color-mix(in srgb,var(--ok) 16%,var(--panel)); border-color:var(--ok)}
+#w5 .cell.ok .s{color:var(--ok)}
+#w5 .cell.flat{background:var(--accent-soft)}
+#w5 .cell.flat .s{color:var(--accent)}
+#w5 .cell.bad{background:color-mix(in srgb,var(--warn) 12%,var(--panel))}
+#w5 .cell.bad .s{color:var(--warn)}
+#w5 .cell.cur{outline:3px solid var(--accent); outline-offset:1px}
+#w5 .legend{display:flex; gap:10px; flex-wrap:wrap; font-size:12px; color:var(--muted); margin:6px 0 4px}
+#w5 .prog{font-size:13px; margin:8px 0 14px}
+#w5 .prog b{font-family:var(--f-display); font-weight:400; font-size:18px; color:var(--ok)}
+#w5 .q{margin:0 0 12px}
+#w5 .q p{margin:0 0 4px; font-weight:500}
+@media (max-width:1040px){ #w5 > .center{order:1} #w5 > aside:first-of-type{order:2} #w5 > aside:last-of-type{order:3} #w5 .panel{overflow:visible} #w5{display:flex; flex-direction:column; min-height:0} #w5 .stage{min-height:340px; flex:none}}
+
+#w5{grid-template-columns:292px minmax(0,1fr) 340px; position:relative}
+#w5 .panel{overflow:auto}
+#w5 .q input{width:100%; height:38px; padding:0 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2)}
+#w5 .qtab{width:100%; border-collapse:separate; border-spacing:4px; table-layout:fixed}
+#w5 .qtab th{font-size:12px; font-weight:500; color:var(--muted); padding:0; text-align:center}
+#w5 .qtab th.r{text-align:left; width:84px; color:var(--ink); font-size:13px}
+#w5 .qtab td{padding:0}
+#w5 .qtab input{text-align:center}
+#w5 .q input:disabled,#w5 .q textarea:disabled{opacity:.8; background:var(--accent-soft); cursor:not-allowed}
+#w5 .btn.go,#w5 .btn.go:hover{background:var(--ok); border-color:var(--ok); color:#fff; font-weight:700}
+#w5 textarea{width:100%; min-height:72px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--panel2); resize:vertical}
+/* ----- 좁은 화면(모바일): 3D 화면 위 글자가 겹치지 않도록 ----- */
+@media (max-width:640px){
+  .login,.login form{width:100%}
+  .login form{display:grid; grid-template-columns:1fr 1fr 1.25fr auto; gap:6px; align-items:center}
+  .login form label{font-size:0; gap:0; min-width:0}
+  .login form input{width:100%!important; min-width:0; font-size:14px; padding:0 8px}
+  .login input::placeholder{color:var(--muted); opacity:.85}
+  .login form .btn{padding:0 12px; white-space:nowrap}
+  .login .lmsg{grid-column:1/-1}
+  .hud .name,#w5 .hud .name{font-size:22px}
+  .hud.tl{max-width:calc(100% - 150px)}
+  #w5 .hud.tl{max-width:calc(100% - 28px)}
+  .hud.bl,#w5 .hud.bl{right:8px; left:14px; bottom:10px; white-space:nowrap; font-size:10px; letter-spacing:-.4px}
+  .hud.bl .hint{white-space:nowrap; font-size:10px; letter-spacing:-.4px}
+  .chooser .body{flex-direction:column; align-items:stretch; text-align:center; gap:10px}
+  .chooser .body h3{font-size:24px}
+  .chooser .go{text-align:center}
+}
+</style>
+</head><body>
+
+<div class="shell">
+  <header class="bar">
+    <h1>입체도형 탐구실<span>with 또빈쌤</span></h1>
+    <div class="login">
+      <form id="loginForm" autocomplete="off">
+        <label>학번 <input id="sid" inputmode="numeric" maxlength="12" autocomplete="off" placeholder="학번"></label>
+        <label>이름 <input id="sname" maxlength="12" autocomplete="off" placeholder="이름"></label>
+        <label>코드번호 <input id="scode" maxlength="6" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="코드번호" style="width:86px"></label>
+        <button class="btn primary" type="submit" id="loginBtn">로그인</button>
+        <div class="lmsg" id="loginMsg" role="alert" hidden></div>
+      </form>
+      <div class="info" id="loginInfo" hidden><span class="who" id="who"></span><button class="btn" id="logoutBtn">로그아웃</button></div>
+    </div>
+  </header>
+
+  <div class="navwrap">
+  <nav class="tabs" role="tablist" aria-label="탐구 영역">
+    <span class="tabg"><button role="tab" id="tabPoly" data-tab="poly" aria-selected="true">다면체</button><button class="lockbtn" data-lk="poly" type="button" hidden></button></span>
+    <span class="tabg"><button role="tab" id="tabPlat" data-tab="plat" aria-selected="false">정다면체</button><button class="lockbtn" data-lk="plat" type="button" hidden></button></span>
+    <span class="tabg"><button role="tab" id="tabRev" data-tab="rev" aria-selected="false">회전체</button><button class="lockbtn" data-lk="rev" type="button" hidden></button></span>
+  </nav>
+  <div class="tbar" id="tBar" hidden><b>교사용 화면</b> 모범답안이 채워져 있습니다. 탭 오른쪽 자물쇠를 누르면 학생 화면의 잠금이 바뀝니다. <span id="tNote"></span><button class="tlink" id="tBarExit" type="button">교사용 나가기</button></div>
+  </div>
+
+  <div class="views" id="views">
+  <div class="grid" id="mainGrid">
+    <!-- 조작 탭 -->
+    <aside class="panel ctlpanel" aria-label="조작">
+
+      <div class="ctl" data-tab="poly">
+        <div class="grp">
+          <label class="lbl" for="polyFam">도형의 종류</label>
+          <select id="polyFam"><option value="prism">각기둥</option><option value="pyramid">각뿔</option><option value="frustum">각뿔대</option></select>
+        </div>
+        <div class="grp">
+          <span class="lbl">밑면의 변의 수</span>
+          <div class="kbox"><button class="btn" id="polyMinus" aria-label="하나 줄이기">−</button><div class="n" id="polyVal">3개</div><button class="btn" id="polyPlus" aria-label="하나 늘리기">+</button></div>
+        </div>
+        <div class="grp">
+          <label class="lbl">밑면의 모양</label>
+          <div class="row2" style="margin-top:0"><button class="btn" id="polyRand">랜덤</button><button class="btn" id="polyReg">정다각형</button></div>
+        </div>
+        <div class="grp">
+          <label class="lbl" for="polyR">밑면의 크기</label>
+          <input type="range" id="polyR" min="0.5" max="1.5" step="0.05" value="1">
+          <div class="ends"><span>작게</span><span>크게</span></div>
+        </div>
+        <div class="grp">
+          <label class="lbl" for="polyH">다면체의 높이</label>
+          <input type="range" id="polyH" min="0.6" max="2.6" step="0.05" value="1.6">
+          <div class="ends"><span>낮게</span><span>높게</span></div>
+        </div>
+        <div class="grp">
+          <span class="lbl">단면 보기</span>
+          <button class="btn wide js-sec" data-sec="perp">밑면과 수직인 평면</button>
+          <button class="btn wide js-sec" data-sec="par">밑면과 평행한 평면</button>
+        </div>
+      </div>
+
+      <div class="ctl" data-tab="plat" hidden>
+        <div class="grp"><button class="btn wide js-backstep" type="button">← 단계 선택</button></div>
+        <div class="grp">
+          <label class="lbl" for="platType">도형의 종류</label>
+          <select id="platType">
+            <option value="tetra">정사면체</option><option value="cube">정육면체</option><option value="octa">정팔면체</option><option value="dodeca">정십이면체</option><option value="icosa">정이십면체</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ctl" data-tab="rev" hidden>
+        <div class="grp">
+          <label class="lbl" for="revFig">회전시킬 평면도형</label>
+          <select id="revFig">
+            <option value="rect">직사각형</option><option value="tri">직각삼각형</option><option value="semi">반원</option><option value="trap">직각사다리꼴</option>
+            <option value="draw" id="revDrawOpt" disabled>나만의 도형</option>
+          </select>
+        </div>
+        <div class="grp">
+          <label class="lbl" for="revAngle">회전각 <span class="val" id="revAngleO">0°</span></label>
+          <input type="range" id="revAngle" min="0" max="360" step="1" value="0">
+          <div class="ends"><span>0°</span><span>360°</span></div>
+        </div>
+        <div class="grp">
+          <label class="lbl" for="revGap">회전축과 평면도형</label>
+          <input type="range" id="revGap" min="0" max="1.2" step="0.02" value="0">
+          <div class="ends"><span>붙어 있기</span><span>떨어지기</span></div>
+        </div>
+        <div class="grp">
+          <span class="lbl">단면 보기</span>
+          <button class="btn wide js-sec" data-sec="perp">회전축과 수직인 평면</button>
+          <button class="btn wide js-sec" data-sec="par">회전축과 평행한 평면</button>
+          <button class="btn wide" id="revContain">회전축 포함하기</button>
+        </div>
+        <div class="grp">
+          <span class="lbl">회전체 만들기</span>
+          <div class="row2"><button class="btn" id="revDraw">도형 그리기</button><button class="btn" id="revDrawDel" disabled>도형 삭제하기</button></div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- 3D 화면 탭 -->
+    <section class="center">
+      <div class="stage" id="stage">
+        <canvas id="gl" aria-label="입체도형 3D 화면"></canvas>
+        <canvas id="draw" hidden aria-label="평면도형 그리기 화면"></canvas>
+        <div class="hud tl"><div class="name" id="hudName"></div><div class="sub" id="hudSub"></div></div>
+        <div class="hud tr" id="hudLegend"><div class="legend"><span><i></i>앞쪽</span><span><i class="d"></i>뒤쪽</span></div></div>
+        <div class="stagebtns"><button class="btn warnb" id="resetAll" data-tip="전체 초기화" aria-label="전체 초기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></button><button class="btn js-reset" data-tip="시점 초기화" aria-label="시점 초기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button><button class="btn js-auto" id="revAuto" data-tip="자동 회전" aria-label="자동 회전"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.6-5.9M20 3.5V9h-5.5"/></svg></button><button class="btn js-vtx" id="stageVtx" data-tip="꼭짓점 보기" aria-label="꼭짓점 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><circle cx="12" cy="3" r="1.6" class="f"/><circle cx="20" cy="7.5" r="1.6" class="f"/><circle cx="4" cy="7.5" r="1.6" class="f"/><circle cx="12" cy="12" r="1.6" class="f"/><circle cx="20" cy="16.5" r="1.6" class="f"/><circle cx="4" cy="16.5" r="1.6" class="f"/><circle cx="12" cy="21" r="1.6" class="f"/></svg></button><button class="btn js-net" id="stageNet" data-tip="전개도 보기" aria-label="전개도 보기"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/><path d="M9 9h6v6H9z"/></svg></button></div>
+        <div class="hud bl"><div class="hint" id="hudHint">드래그해서 돌려 보기 · 마우스 휠 또는 두 손가락으로 확대/축소</div></div>
+      </div>
+      <div class="under" id="under" hidden></div>
+    </section>
+
+    <!-- 탐구내용 정리 탭 -->
+    <aside class="panel quizpanel quiz" aria-label="탐구내용 정리">
+      <h2>탐구내용 정리 <span class="qtag" id="quizTag" hidden></span></h2>
+      <div id="quizBody"></div>
+    </aside>
+  </div>
+  <section class="chooser" id="stepChoose" hidden>
+    <div class="cards">
+      <button class="card rec" id="card1" type="button"><span class="badge">STEP 1</span><span class="state" id="st1"></span>
+        <div class="img"><img alt="" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQDAwMEBAQFBgoGBgUFBgwICQcKDgwPDg4MDQ0PERYTDxAVEQ0NExoTFRcYGRkZDxIbHRsYHRYYGRj/2wBDAQQEBAYFBgsGBgsYEA0QGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBj/wAARCAJYA0gDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD7nx9KMfSiitjMWiiigAooooAKKKKAFo/Kij8aAD8qPyoooAKWiigAooooAKKKKACl/KkpfxoAPyox9KKPxoAPypaKKACiiigAooooAKKKWgBKX8qKPxoAPyox9KPxo/GgAx9KPyoooAKWiigAoxRRQAUUUUAHeiiigAooooAKKKKQBRRRQAUUUUAFFFFAwooooAKKKKBBRRRQMKKKO9ABRRRQIKKKKACiiigAooooAKKKKYBRRRQAUUUUAFJ2paKAE7UUvaigBKMfSij8aADH0o/KjvR+NACUUv40UAJRS0lABRRRQAUdqKKAE7UYpe1JQAY+lH5UUUAJRS0UAJRRRQAUUUUAFJ3paKAExRRRQA386WiigAooooAKWkpaAD86Pzoo/CgA/Oj86KKAFooooAKKKKACiiloAPzo/Oj8KPwoAPzo/OjijHtQAtFFFABRRRQAUUUUAL+dH50UfhQAfnR+dHHpRx6UAH50fnRj2ooAPzpaSloAKKKKACiiigAooooAKKKKQBRRRQAd6KKWgYlL+dJS0CD86PzoooGH50fnRR+FAB+dH50fhRQIPzo/Oj8KPwoAPzo/OijtQAfnR+dH4UfhQAfnR+dH4Ud6AD86Pzo/CigA/Oj86KKAD86PzoooAPzo/OiigBKKKKBhRRRQIKKKKACiiimAUUUUAFFFFABR370UUAJ+dH50UY9qAD86Pzo4o49KAD86O/eiigBKKKKACiiigApPzpaSgA796PzoooAPzo/Oj8KKAD86SiigAooooAKKKKAG8UUUUAFFFFABS/lRRQAflR+VFFAB+VLRRQAUUUUAFFFLQAflR+VH50c0AH5Uce1FLQAn5UtFFABRRRQAUUUtACUv5UfnRzQAflRx7UUtACce1FLRQAUUUUAHFFFFABRRRSAKKKKACiiigAopaKBiUv5UUfnQIPyo/KiigA/Kj8qOaPxpAH5UflRz60UDD8qPyoo70AH5UflS0lAB+VH5UtFACflRx7UtHagBPyo/KlooAT8qPypaKAE/Kj8qWkoAPyo/KiigA/Kj8qKOaBB+VH5UUUDD8qPyoopgH5UflRRQISjvS0UAJRS96SgAooopgFHeiigAooooATtR2paKAEo4paKAE/Kj8qKKAD8qSlooASil7UlABRRRQAUlLRQAnHtR+VLSUAH5UflRRQAlFFFABRRRQA2iiigApaSl/KgAoo/KigApaSloAKKKKACiiigBaKPyo/KgA596OaPyooAXvRRRQAUUUUAFFFFAC0UflRj6UAHNHNGPpR+VABS0UUAFFFFABRRRQAUUUUAFFFFIApaSl/KgAoo/Kj8qACj86MfSjH0oGH50c+9GPpRikIPzooooGH50c0UtABSUtFACUtFFABRRR2oAKKKKACjtRRQAUUUUAFFFFABR2oo7UAHaijtRQAUnNLRQAnNFLSUAFHPvR+VH5UwCijFGPpSAKKMfSj8qYgoo/KkoAWkoooAKKKKACiiigAooopgFFFFABSUUtACc+lHNHejH0oAKKMfSj8qAEopfypKACiiigA7UlLR2oATmij8q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PpXo3p78j3r0oyUldHlTg4O0goooqiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAK8v+KOufbdY0rwHZl3lv5A1wY+sa+9enSSxwQvNM4SNFLMx6DAryv4b29/4n+KuteOtSgRYY2NvbAjIYdMiom+hcO7PVtN06HSdJt9Nt1Ajt4xGMd8d6tUDgUUiAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigBGAZSpAIIwQehFeQeKvB/ifwV4rPj34bykxKd+oaMSdk69yo/vV7BRUzgpKzLp1HB3RQ+HvxI8P8AxG0E32kO0N1F8t1YzcSwv3BHpXY14t4j8BXOl63/AMJn8PlFlraNvuLZeI7te4I9a7vwN4+0zxnZvCgNrrFt8t3YScMjDrj1FedUpODPYo141V5nXUUnajtWRuLRSZFHHrQAflRRxR+NABxR+VH40nagBfyo/KkooAX8qSiigAooooAKKO1J2oAWikyKOPWgA/Kjv2o4o/GgA/Kijj1ooAb+dH50lH4UAL+dH50UfhQAfnS0n4UfhQAtFJS0AFFFFABRRRQAv50fnSUUAL+dH50UcelAB+dH50fhRQAtFJ+FH4UALRRRQBzvjDwR4b8c6I2m+IdPjnxzDcAYkgbsykd68hm1nxR8H7+20PxXHc654dlcJb6wg3PAOwlNfQFQ3Vpa31pJaXttFcQSDa0cqhgRWlOpKDujKrSjUVmcra3VtfWMV5ZzJNBKoZJEOQRU1eX674J8Z/DDXp/FHgcvrXhxzvvNFkY7rcd2j9fpXaeFvFej+L9ETUdImJ7SW8g2yxN3DL2r06VaNRaHk1qEqb12NyiiitTAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAoopCyIpeQ4RRuY+gHWgDhPifrM8GjweHNOO6/1NxHsHUIe9df4Y0ODw74Vs9KgH+rQF27lj1zXlvhCOPxz8edS8TvcPLZ6SDFaH+EkV7T1JPrzWV7u5ctFyhRRRTICiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigArz7x54J1K7n/4SvwTcjTvE1sNyOvC3AH8LV6DR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FIAooopgFFFFIAooooAKKKKBhRRRTAKKKKACiiigApfzpKKAF/OkoopAL+dH50lFMApe3ekopAL+dH50lFAC/nR+dJRQAv50lFFMAooopAL+dJRRTAKKKKQBRRRQAUUUUxBRRRQAUUUUgCiiigAooooAKKKKYBRSdqO1AC0UUUAFFJ+FHegBaO1J+FFAB270fnRRQAfnR+dFFAB+dH50celHHpQAfnR270celHHpQAfnR+dH4UfhQAfnR+dJRQAv50UlFACflR+VFFAC0UUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAL+VH5UUUAH5UZ+lFFABn6UZ+lFFABn6UZ+lFFABn6UflRRQAZozRRQMM/SjP0oooAPyo70UUhBmiiigBaKKKACiiigYUUUUAFFFFABRRRQAUUUUCCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKYBRRRSGFFFFABRRRQAUUUUAFFFFACUUUUXEHejvRRQAflR+VFFMAzRmiigYZ+lGaKKADNGfpRRQIM/SjP0oooAM/SjP0oooAM/SjP0oooASjtRRQAUUUUAFFFFABRRRQB//Z"></div>
+        <div class="body"><h3>정다면체 만들기</h3><span class="go">시작하기 ▶</span></div></button>
+      <button class="card b2" id="card2" type="button"><span class="badge">STEP 2</span><span class="state" id="st2"></span>
+        <div class="img"><img alt="" src="data:image/jpeg;base64,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"></div>
+        <div class="body"><h3>정다면체 탐구하기</h3><span class="go">시작하기 ▶</span></div></button>
+    </div>
+  </section>
+  <div class="grid" id="w5" hidden>
+    <aside class="panel" aria-label="조작">
+      <div class="grp"><button class="btn wide js-backstep" type="button">← 단계 선택</button></div>
+      <div class="grp">
+        <span class="lbl">면의 모양</span>
+        <div class="chips seg" id="w5_mChips"></div>
+      </div>
+      <div class="grp">
+        <span class="lbl">한 꼭짓점에 모이는 면의 수</span>
+        <div class="kbox"><button class="btn" id="w5_kMinus" aria-label="하나 줄이기">−</button><div class="n" id="w5_kVal">3개</div><button class="btn" id="w5_kPlus" aria-label="하나 늘리기">+</button></div>
+      </div>
+      <div class="grp">
+        <label class="lbl" for="w5_fold">접기</label>
+        <input type="range" id="w5_fold" min="0" max="100" step="1" value="0">
+        <div class="ends"><span>펼치기</span><span>접기</span></div>
+        <button class="btn primary wide" id="w5_play" style="margin-top:10px">자동 접기</button>
+        <button class="btn wide" id="w5_comp" style="margin-top:8px">정다면체 완성하기</button>
+      </div>
+    </aside>
+
+    <section class="center">
+      <div class="stage" id="w5_stage">
+        <canvas id="w5_gl" aria-label="한 꼭짓점 주변의 면 3D 화면"></canvas>
+        <div class="hud tl"><div class="name" id="w5_hudName"></div><div class="sub" id="w5_hudSub"></div></div>
+        <div class="stagebtns w5btns"><button class="btn warnb" id="w5_resetAll" data-tip="전체 초기화" aria-label="전체 초기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8M5 9.5V21h5v-6h4v6h5V9.5"/></svg></button><button class="btn" id="w5_resetView" data-tip="시점 초기화" aria-label="시점 초기화"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+        <div class="hud bl">드래그해서 돌려 보기 · 마우스 휠 또는 두 손가락으로 확대/축소</div>
+      </div>
+      <div class="under">
+        <div class="eq" id="w5_eq"></div>
+        <div>
+          <div class="gauge" id="w5_gauge"></div>
+          <div class="gl" id="w5_gaugeL"></div>
+        </div>
+      </div>
+    </section>
+
+    <aside class="panel" aria-label="탐구내용 정리">
+      <h2>탐구내용 정리</h2>
+      <div class="q"><p>1. 다음 정다각형이 한 꼭짓점에 몇 개 이상 모이면 정다면체가 만들어지지 않는지 각각 구해 표로 정리해 봅시다.</p>
+        <table class="qtab"><tr><th></th><th>몇 개 이상</th></tr>
+          <tr><th class="r">정삼각형</th><td><input type="number" inputmode="numeric" min="0" data-q="0" placeholder="개수"></td></tr>
+          <tr><th class="r">정사각형</th><td><input type="number" inputmode="numeric" min="0" data-q="1" placeholder="개수"></td></tr>
+          <tr><th class="r">정오각형</th><td><input type="number" inputmode="numeric" min="0" data-q="2" placeholder="개수"></td></tr>
+          <tr><th class="r">정육각형</th><td><input type="number" inputmode="numeric" min="0" data-q="3" placeholder="개수"></td></tr>
+          <tr><th class="r">정칠각형</th><td><input type="number" inputmode="numeric" min="0" data-q="4" placeholder="개수"></td></tr>
+        </table></div>
+      <div class="q"><p>2. 정다면체의 면의 모양으로 가능한 정다각형을 모두 작성해 봅시다.</p><input type="text" data-q="5" placeholder="가능한 정다각형 모두 작성하기" autocomplete="off"></div>
+      <div class="q"><p>3. 정다면체가 만들어지지 않은 경우, 그 이유가 무엇인지 자신의 생각을 작성해 봅시다.</p><textarea data-q="6" placeholder="만들어지지 않은 이유 작성하기"></textarea></div>
+      <div class="q"><p>4. 정다면체의 종류는 모두 몇 가지인지 작성해 봅시다.</p><input type="number" inputmode="numeric" min="0" data-q="7" placeholder="개수"></div>
+      <div class="acts"><button class="btn" id="w5_saveBtn">임시저장</button><button class="btn primary" id="w5_submit">제출하기</button><button class="btn go" id="w5_nextBtn" hidden>STEP 2로 이동</button></div>
+      <p class="msg" id="w5_subMsg" style="font-size:13px; margin:10px 0 0"></p>
+    </aside>
+  </div>
+  <div class="lockov" id="lockOv" hidden><div><b>🔒</b>탐구가 불가능한 탭입니다.</div></div>
+  </div>
+
+  <footer class="foot">© 2026 또빈쌤. All rights reserved.<button class="tlink" id="teacherOpen" type="button">교사용</button></footer>
+</div>
+
+<div class="tdlg" id="tdlg" hidden>
+  <div class="tbox" role="dialog" aria-label="교사용 화면">
+    <h2>교사용 화면</h2>
+    <div id="tLogin">
+      <label for="tcode" style="font-size:13px">교사 코드</label>
+      <input type="password" id="tcode" autocomplete="off" style="margin-top:6px">
+      <div class="tbtns"><button class="btn primary" id="tEnter">확인</button><button class="btn tclose">닫기</button></div>
+    </div>
+    <div id="tPanel" hidden>
+      <p class="msg" style="margin:0 0 6px">교사용으로 접속했습니다. 화면은 학생 화면과 같고 탐구내용 정리에 모범답안이 채워져 있습니다. 잠금은 탭 오른쪽 자물쇠로 바꿉니다.</p>
+      <div class="tbtns"><button class="btn" id="tExit">교사용 나가기</button><button class="btn primary tclose">닫기</button></div>
+    </div>
+    <p class="msg" id="tMsg"></p>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+'use strict';
+/* 구글 시트 연결: Apps Script 웹 앱 URL을 아래 따옴표 안에 붙여 넣으세요. 비어 있으면 이 기기에만 저장됩니다. */
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbwrMpgKFu2US1y2lMW6puJPWkOxDC6P6mBQT5ts49wYjYV9hhCq13zVHsEP4cfMc0rg/exec';
+const W5={};   /* STEP 1 (정다면체 만들기) 모듈이 채워 넣음 */
+
+/*CORE-START*/
+const K=['','일','이','삼','사','오','육','칠','팔','구','십','십일','십이','십삼','십사','십오','십육','십칠','십팔','십구','이십','이십일','이십이','이십삼','이십사','이십오','이십육','이십칠','이십팔','이십구','삼십'];
+const TAU=Math.PI*2;
+const GR=(1+Math.sqrt(5))/2;
+function V(x,y,z){return new THREE.Vector3(x,y,z);}
+function clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function newell(pts){
+  const n=V(0,0,0);
+  for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];
+    n.x+=(a.y-b.y)*(a.z+b.z); n.y+=(a.z-b.z)*(a.x+b.x); n.z+=(a.x-b.x)*(a.y+b.y);}
+  return n.normalize();
+}
+function range(n){const r=[];for(let i=0;i<n;i++)r.push(i);return r;}
+
+/* ---------- 다면체 ---------- */
+function finishPoly(verts,faceIdx,kinds,info){
+  const box=new THREE.Box3().setFromPoints(verts); const c=box.getCenter(V(0,0,0));
+  verts.forEach(v=>v.sub(c));
+  let m=0; verts.forEach(v=>{m=Math.max(m,v.length());});
+  const s=info.fs||1.5/m; info._scale=s; verts.forEach(v=>v.multiplyScalar(s));
+  const mean=V(0,0,0); verts.forEach(v=>mean.add(v)); mean.multiplyScalar(1/verts.length);
+  const faces=faceIdx.map((idx0,i)=>{
+    const idx=idx0.slice(); const pts=idx.map(k=>verts[k]);
+    const n=newell(pts); const cen=V(0,0,0); pts.forEach(p=>cen.add(p)); cen.multiplyScalar(1/pts.length);
+    if(n.dot(cen.clone().sub(mean))<0){idx.reverse(); n.negate();}
+    return {idx,kind:kinds[i],normal:n,centroid:cen};
+  });
+  const seen=new Set(), ea=[]; let E=0;
+  faces.forEach(f=>{const k=f.idx.length; for(let i=0;i<k;i++){
+    const a=f.idx[i], b=f.idx[(i+1)%k]; const key=a<b?a+'_'+b:b+'_'+a;
+    if(!seen.has(key)){seen.add(key);E++; const A=verts[a],B=verts[b]; ea.push(A.x,A.y,A.z,B.x,B.y,B.z);}}});
+  return Object.assign({type:'poly',verts,faces,E,edgeArr:Float64Array.from(ea)},info);
+}
+/* 밑면의 꼭짓점 좌표(x,z): irr가 있으면 임의의 볼록 n각형, 없으면 정n각형. 무게중심이 원점 */
+function basePts(n,r,irr){
+  if(irr&&irr.length===n)return irr.map(p=>[p[0]*r,p[1]*r]);
+  return range(n).map(i=>{const a=TAU*i/n; return [r*Math.cos(a),r*Math.sin(a)];});
+}
+/* 임의의 볼록 n각형: 원 위의 점들(항상 볼록)을 늘이고 기울여 정다각형처럼 보이지 않게 만든다.
+   삼각형은 (일반·이등변·직각) 중 하나, 사각형은 정사각형을 뺀 초등학교 사각형 중 하나를 무작위로 고른다(정다각형은 나오지 않음). */
+function randomBase(n){
+  const nameOf=pts=>polySectionName(pts.map(p=>V(p[0],0,p[1])));
+  const fin=pts=>{   /* 무게중심을 원점으로, 가장 먼 꼭짓점을 반지름 1로, 방향은 무작위로 */
+    const m0=pts.length; let A=0,cx=0,cz=0;
+    for(let i=0;i<m0;i++){const [x1,z1]=pts[i],[x2,z2]=pts[(i+1)%m0]; const f=x1*z2-x2*z1; A+=f; cx+=(x1+x2)*f; cz+=(z1+z2)*f;}
+    if(Math.abs(A)<1e-6)return null; cx/=(3*A); cz/=(3*A);
+    let q=pts.map(p=>[p[0]-cx,p[1]-cz]); let m=0; q.forEach(p=>{m=Math.max(m,Math.hypot(p[0],p[1]));});
+    const th=Math.random()*TAU, c=Math.cos(th), sn=Math.sin(th);
+    return q.map(p=>{const x=p[0]/m,z=p[1]/m; return [x*c-z*sn,x*sn+z*c];});
+  };
+  const deg=Math.PI/180, rnd=(a,b)=>a+Math.random()*(b-a);
+  if(n===3){
+    const kind=['normal','isos','right'][Math.floor(Math.random()*3)];
+    for(let t=0;t<200;t++){
+      let pts;
+      if(kind==='isos'){   /* 꼭지각이 정삼각형(60°)·직각이등변(90°)에 가깝지 않게 */
+        const ph=[rnd(28,50),rnd(70,84),rnd(100,130)][Math.floor(Math.random()*3)]*deg;
+        pts=[[0,0],[-Math.sin(ph/2),Math.cos(ph/2)],[Math.sin(ph/2),Math.cos(ph/2)]];
+      }else if(kind==='right'){
+        const k=rnd(0.45,0.8); pts=[[0,0],[1,0],[0,k]];
+      }else break;
+      pts=fin(pts); if(pts&&nameOf(pts)===(kind==='isos'?'이등변삼각형':'직각삼각형'))return pts;
+    }
+  }
+  if(n===4){   /* 정사각형을 뺀 5가지(직사각형·마름모·평행사변형·사다리꼴·일반 사각형)를 같은 확률로 */
+    const kind=['rect','rhombus','para','trap','general'][Math.floor(Math.random()*5)];
+    const want={rect:'직사각형',rhombus:'마름모',para:'평행사변형',trap:'사다리꼴'}[kind];
+    if(want){
+      for(let t=0;t<200;t++){
+        let pts;
+        if(kind==='rect'){const k=rnd(0.45,0.78); pts=[[-1,-k],[1,-k],[1,k],[-1,k]];}
+        else if(kind==='rhombus'){const q=rnd(0.45,0.75); pts=[[1,0],[0,q],[-1,0],[0,-q]];}
+        else if(kind==='para'){const h=rnd(0.5,0.85), sh=rnd(0.25,0.6); pts=[[0,0],[1,0],[1+sh,h],[sh,h]];}
+        else{const tp=rnd(0.35,0.7), h=rnd(0.5,0.85), o=rnd(-0.1,0.55); pts=[[0,0],[1,0],[o+tp,h],[o,h]];}
+        pts=fin(pts); if(pts&&nameOf(pts)===want)return pts;
+      }
+    }
+  }
+  for(let tries=0;tries<400;tries++){
+    const g=range(n).map(()=>0.45+Math.random()*1.1), sum=g.reduce((a,b)=>a+b,0);
+    let a=Math.random()*TAU, ang=g.map(x=>{const t=a; a+=TAU*x/sum; return t;});
+    const sx=0.6+Math.random()*0.4, sh=(Math.random()-0.5)*0.5;
+    const pts=fin(ang.map(t=>{const x=Math.cos(t)*sx, z=Math.sin(t); return [x+sh*z,z];}));
+    if(!pts)continue;
+    /* 변의 길이가 충분히 다르고, 가장 짧은 변이 너무 짧지 않으며, 정다각형이나 특별한 이름이 붙지 않는 모양만 사용 */
+    const L=pts.map((p,i)=>Math.hypot(p[0]-pts[(i+1)%n][0],p[1]-pts[(i+1)%n][1])).sort((x,y)=>x-y);
+    let ok;
+    if(n<=4){ok=L[0]>0.22; for(let i=1;i<n&&ok;i++)if(L[i]/L[i-1]<1.06)ok=false;}
+    else ok=L[0]>0.16&&L[n-1]/L[0]>=1.3;   /* 변이 많을 때는 가장 긴 변과 가장 짧은 변의 차이가 충분하면 됨 */
+    if(ok&&nameOf(pts)===(n===3?'삼각형':K[n]+'각형'))return pts;
+  }
+  return null;
+}
+function makePrism(n,h,r=1,fs,irr){
+  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  B.forEach(p=>verts.push(V(p[0],h/2,p[1])));
+  const faces=[range(n),range(n).map(i=>n+i)], kinds=['base','base'];
+  for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n+(i+1)%n,n+i]); kinds.push('side');}
+  return finishPoly(verts,faces,kinds,{fs,family:'prism',n,name:K[n]+'각기둥',baseText:K[n]+'각형',sideText:'직사각형'});
+}
+function makePyramid(n,h,r=1,fs,irr){
+  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  verts.push(V(0,h/2,0));
+  const faces=[range(n)], kinds=['base'];
+  for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n]); kinds.push('side');}
+  return finishPoly(verts,faces,kinds,{fs,family:'pyramid',n,name:K[n]+'각뿔',baseText:K[n]+'각형',sideText:'삼각형'});
+}
+function makeFrustum(n,h,ratio,r=1,fs,irr){
+  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  B.forEach(p=>verts.push(V(p[0]*ratio,h/2,p[1]*ratio)));
+  const faces=[range(n),range(n).map(i=>n+i)], kinds=['base','base'];
+  for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n+(i+1)%n,n+i]); kinds.push('side');}
+  return finishPoly(verts,faces,kinds,{fs,family:'frustum',n,name:K[n]+'각뿔대',baseText:K[n]+'각형',sideText:'사다리꼴'});
+}
+function facesFromNormals(verts,normals){
+  return normals.map(nm=>{
+    let mx=-1e9; verts.forEach(v=>{mx=Math.max(mx,v.dot(nm));});
+    const idx=[]; verts.forEach((v,i)=>{if(v.dot(nm)>mx-1e-6)idx.push(i);});
+    const n=nm.clone().normalize(); const u=Math.abs(n.y)<.9?V(0,1,0).cross(n).normalize():V(1,0,0).cross(n).normalize(); const w=n.clone().cross(u);
+    const c=V(0,0,0); idx.forEach(i=>c.add(verts[i])); c.multiplyScalar(1/idx.length);
+    idx.sort((a,b)=>{const ra=verts[a].clone().sub(c),rb=verts[b].clone().sub(c);return Math.atan2(ra.dot(w),ra.dot(u))-Math.atan2(rb.dot(w),rb.dot(u));});
+    return idx;
+  });
+}
+function makePlatonic(type){
+  let verts=[],faces=[],name,faceText;
+  if(type==='tetra'){
+    verts=[V(1,1,1),V(1,-1,-1),V(-1,1,-1),V(-1,-1,1)]; faces=[[0,1,2],[0,3,1],[0,2,3],[1,3,2]]; name='정사면체'; faceText='정삼각형';
+  }else if(type==='cube'){
+    verts=[V(-1,-1,-1),V(1,-1,-1),V(1,1,-1),V(-1,1,-1),V(-1,-1,1),V(1,-1,1),V(1,1,1),V(-1,1,1)];
+    faces=[[0,3,2,1],[4,5,6,7],[0,1,5,4],[3,7,6,2],[0,4,7,3],[1,2,6,5]]; name='정육면체'; faceText='정사각형';
+  }else if(type==='octa'){
+    verts=[V(1,0,0),V(-1,0,0),V(0,1,0),V(0,-1,0),V(0,0,1),V(0,0,-1)];
+    for(const x of [0,1])for(const y of [2,3])for(const z of [4,5])faces.push([x,y,z]); name='정팔면체'; faceText='정삼각형';
+  }else if(type==='icosa'){
+    for(const a of [-1,1])for(const b of [-GR,GR]){verts.push(V(0,a,b),V(a,b,0),V(b,0,a));}
+    for(let i=0;i<12;i++)for(let j=i+1;j<12;j++)for(let k=j+1;k<12;k++){
+      if(Math.abs(verts[i].distanceTo(verts[j])-2)<1e-6&&Math.abs(verts[j].distanceTo(verts[k])-2)<1e-6&&Math.abs(verts[i].distanceTo(verts[k])-2)<1e-6)faces.push([i,j,k]);}
+    name='정이십면체'; faceText='정삼각형';
+  }else{
+    for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1])verts.push(V(x,y,z));
+    for(const a of [-1,1])for(const b of [-1,1]){verts.push(V(0,a/GR,b*GR),V(a/GR,b*GR,0),V(b*GR,0,a/GR));}
+    const nm=[]; for(const a of [-1,1])for(const b of [-1,1]){nm.push(V(0,a*GR,b),V(a,0,b*GR),V(a*GR,b,0));}
+    faces=facesFromNormals(verts,nm); name='정십이면체'; faceText='정오각형';
+  }
+  return finishPoly(verts,faces,faces.map(()=> 'plat'),{family:'plat',platType:type,name,faceText});
+}
+const PLAT_BY_N={4:'tetra',6:'cube',8:'octa',12:'dodeca',20:'icosa'};
+/* 면이 n개인 다면체. 정다면체가 되는 n이면 정다면체, 아니면 (n-1)각뿔로 만든다. */
+function makeNHedron(n){
+  if(PLAT_BY_N[n]){const m=makePlatonic(PLAT_BY_N[n]); m.regular=true; return m;}
+  const m=makePyramid(n-1,1.7); m.regular=false; m.name=K[n]+'면체'; m.note=K[n-1]+'각뿔 모양'; return m;
+}
+
+/* ---------- 전개도 ---------- */
+function buildAdj(model){
+  const map=new Map(), adj=model.faces.map(()=>[]);
+  model.faces.forEach((f,fi)=>{const k=f.idx.length; for(let i=0;i<k;i++){
+    const a=f.idx[i],b=f.idx[(i+1)%k]; const key=a<b?a+'_'+b:b+'_'+a;
+    if(map.has(key)){const o=map.get(key); adj[fi].push({g:o,a,b}); adj[o].push({g:fi,a,b});} else map.set(key,fi);}});
+  return adj;
+}
+function finalizeNodes(model,nodes){
+  nodes.forEach(nd=>{
+    if(nd.parent<0)return;
+    const A=model.verts[nd.a],B=model.verts[nd.b]; const axis=B.clone().sub(A).normalize();
+    const nf=model.faces[nd.f].normal, np=model.faces[nd.parent].normal;
+    const ang=Math.acos(clamp(nf.dot(np),-1,1));
+    const d1=nf.clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(axis,ang)).dot(np);
+    const d2=nf.clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(axis,-ang)).dot(np);
+    nd.axis=axis; nd.phi=d1>=d2?ang:-ang;
+  });
+  return nodes;
+}
+function randomTree(model,adj,rnd){
+  const F=model.faces.length, visited=new Array(F).fill(false); visited[0]=true;
+  const nodes=[{f:0,parent:-1}];
+  let frontier=adj[0].map(e=>({p:0,g:e.g,a:e.a,b:e.b})); let guard=0;
+  while(nodes.length<F && frontier.length && guard++<10000){
+    const i=Math.floor(rnd()*frontier.length); const e=frontier.splice(i,1)[0];
+    if(visited[e.g])continue; visited[e.g]=true;
+    nodes.push({f:e.g,parent:e.p,a:e.a,b:e.b});
+    adj[e.g].forEach(x=>{if(!visited[x.g])frontier.push({p:e.g,g:x.g,a:x.a,b:x.b});});
+  }
+  return nodes;
+}
+function bfsTree(model,adj,root,rot){
+  const F=model.faces.length, seen=new Array(F).fill(false); seen[root]=true;
+  const nodes=[{f:root,parent:-1}], q=[root];
+  while(q.length){const f=q.shift(), list=adj[f], L=list.length;
+    for(let i=0;i<L;i++){const e=list[(i+rot)%L]; if(seen[e.g])continue; seen[e.g]=true; nodes.push({f:e.g,parent:f,a:e.a,b:e.b}); q.push(e.g);}}
+  return nodes;
+}
+function chainTree(model,adj){
+  const n=model.n, nodes=[{f:2,parent:-1}];
+  for(let i=1;i<n;i++){const e=adj[2+i].find(x=>x.g===2+i-1); nodes.push({f:2+i,parent:2+i-1,a:e.a,b:e.b});}
+  [0,1].forEach(b=>{const e=adj[b].find(x=>x.g===2); nodes.push({f:b,parent:2,a:e.a,b:e.b});});
+  return nodes;
+}
+function starTree(model,adj){const nodes=[{f:0,parent:-1}]; adj[0].forEach(e=>nodes.push({f:e.g,parent:0,a:e.a,b:e.b})); return nodes;}
+function netMatrices(nodes,model,t){
+  const mats=new Array(model.faces.length);
+  nodes.forEach(nd=>{
+    if(nd.parent<0){mats[nd.f]=new THREE.Matrix4();return;}
+    const A=model.verts[nd.a];
+    const M=new THREE.Matrix4().makeTranslation(A.x,A.y,A.z)
+      .multiply(new THREE.Matrix4().makeRotationAxis(nd.axis,nd.phi*t))
+      .multiply(new THREE.Matrix4().makeTranslation(-A.x,-A.y,-A.z));
+    mats[nd.f]=mats[nd.parent].clone().multiply(M);
+  });
+  return mats;
+}
+function polyOverlap(A,B){
+  const eps=1e-4;
+  for(const P of [A,B]){
+    for(let i=0;i<P.length;i++){
+      const a=P[i],b=P[(i+1)%P.length]; let ax=-(b[1]-a[1]),ay=b[0]-a[0]; const l=Math.hypot(ax,ay); if(l<1e-12)continue; ax/=l;ay/=l;
+      let minA=1e9,maxA=-1e9,minB=1e9,maxB=-1e9;
+      A.forEach(p=>{const d=p[0]*ax+p[1]*ay; minA=Math.min(minA,d);maxA=Math.max(maxA,d);});
+      B.forEach(p=>{const d=p[0]*ax+p[1]*ay; minB=Math.min(minB,d);maxB=Math.max(maxB,d);});
+      if(maxA<=minB+eps||maxB<=minA+eps)return false;
+    }
+  }
+  return true;
+}
+function netLayout(model,nodes){
+  const mats=netMatrices(nodes,model,1);
+  const n=model.faces[nodes[0].f].normal;
+  const u=(Math.abs(n.y)<.9?V(0,1,0):V(1,0,0)).clone(); u.sub(n.clone().multiplyScalar(u.dot(n))).normalize(); const w=n.clone().cross(u);
+  const polys=model.faces.map((f,i)=>f.idx.map(k=>{const p=model.verts[k].clone().applyMatrix4(mats[i]); return [p.dot(u),p.dot(w)];}));
+  let overlap=false;
+  for(let i=0;i<polys.length&&!overlap;i++)for(let j=i+1;j<polys.length;j++){if(polyOverlap(polys[i],polys[j])){overlap=true;break;}}
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9; polys.forEach(P=>P.forEach(p=>{x0=Math.min(x0,p[0]);x1=Math.max(x1,p[0]);y0=Math.min(y0,p[1]);y1=Math.max(y1,p[1]);}));
+  const cx=(x0+x1)/2, cy=(y0+y1)/2; const off=n.dot(model.faces[nodes[0].f].centroid);
+  const center=n.clone().multiplyScalar(off).add(u.clone().multiplyScalar(cx)).add(w.clone().multiplyScalar(cy));
+  return {overlap,center,radius:Math.hypot(x1-x0,y1-y0)/2,normal:n.clone(),w:x1-x0,h:y1-y0};
+}
+/* 가장 단순한 전개도 한 가지: 각기둥·각뿔대는 옆면을 한 줄로, 각뿔은 밑면 둘레에 옆면을 붙인다. */
+function makeNet(model){
+  const adj=buildAdj(model); const tries=[];
+  if(model.family==='prism'||model.family==='frustum')tries.push(chainTree(model,adj));
+  else if(model.family==='pyramid')tries.push(starTree(model,adj));
+  else{const F=model.faces.length; for(let rot=0;rot<3;rot++)for(let r=0;r<F;r++)tries.push(bfsTree(model,adj,r,rot));}
+  for(const nodes of tries){
+    if(nodes.length<model.faces.length)continue;
+    finalizeNodes(model,nodes); const layout=netLayout(model,nodes);
+    if(!layout.overlap)return {nodes,layout};
+  }
+  for(let k=0;k<3000;k++){
+    const nodes=finalizeNodes(model,randomTree(model,adj,mulberry32(k*7919+5)));
+    if(nodes.length<model.faces.length)continue;
+    const layout=netLayout(model,nodes); if(!layout.overlap)return {nodes,layout};
+  }
+  return null;
+}
+
+/* ---------- 단면(다면체) ---------- */
+function slicePoints(edgeArr,n,d){
+  const eps=1e-6, map=new Map(), pts=[];
+  const add=(x,y,z)=>{const key=Math.round(x*5000)+','+Math.round(y*5000)+','+Math.round(z*5000); if(!map.has(key)){map.set(key,1);pts.push(V(x,y,z));}};
+  for(let i=0;i<edgeArr.length;i+=6){
+    const ax=edgeArr[i],ay=edgeArr[i+1],az=edgeArr[i+2],bx=edgeArr[i+3],by=edgeArr[i+4],bz=edgeArr[i+5];
+    const da=n.x*ax+n.y*ay+n.z*az-d, db=n.x*bx+n.y*by+n.z*bz-d;
+    if(Math.abs(da)<eps)add(ax,ay,az);
+    if(Math.abs(db)<eps)add(bx,by,bz);
+    if((da<-eps&&db>eps)||(da>eps&&db<-eps)){const t=da/(da-db); add(ax+(bx-ax)*t,ay+(by-ay)*t,az+(bz-az)*t);}
+  }
+  /* 아주 가까운 점(눈으로 구별되지 않는 짧은 변)은 하나로 합침 */
+  for(let i=0;i<pts.length;i++)for(let j=pts.length-1;j>i;j--){ if(pts[i].distanceTo(pts[j])<0.025){pts[i].add(pts[j]).multiplyScalar(0.5); pts.splice(j,1);} }
+  if(pts.length<3)return {pts:[],n:n.clone(),d,c:V(0,0,0)};
+  const c=V(0,0,0); pts.forEach(p=>c.add(p)); c.multiplyScalar(1/pts.length);
+  const u=(Math.abs(n.y)<.9?V(0,1,0).cross(n):V(1,0,0).cross(n)).normalize(); const w=n.clone().cross(u);
+  const ang=pts.map(p=>{const r=p.clone().sub(c);return Math.atan2(r.dot(w),r.dot(u));});
+  const order=pts.map((_,i)=>i).sort((i,j)=>ang[i]-ang[j]);
+  return {pts:order.map(i=>pts[i]),n:n.clone(),d,c};
+}
+/* 다각형(3차원 좌표, 한 평면 위)의 직각인 꼭짓점마다 직각 표시(ㄴ자 두 선분)를 만든다 */
+function rightMarks(pts){
+  const out=[], k=pts.length;
+  for(let i=0;i<k;i++){
+    const p=pts[i], u=pts[(i+k-1)%k].clone().sub(p), v=pts[(i+1)%k].clone().sub(p), lu=u.length(), lv=v.length();
+    if(lu<1e-6||lv<1e-6)continue; u.divideScalar(lu); v.divideScalar(lv);
+    if(Math.abs(u.dot(v))>3e-3)continue;
+    const s=Math.min(0.09,0.2*Math.min(lu,lv));
+    const A=p.clone().addScaledVector(u,s), B=A.clone().addScaledVector(v,s), C=p.clone().addScaledVector(v,s);
+    out.push(A.x,A.y,A.z,B.x,B.y,B.z,B.x,B.y,B.z,C.x,C.y,C.z);
+  }
+  return Float32Array.from(out);
+}
+function capFromPts(sec){
+  const pts=sec.pts,c=sec.c,k=pts.length,fill=[];
+  for(let i=0;i<k;i++){const a=pts[i],b=pts[(i+1)%k]; fill.push(c.x,c.y,c.z,a.x,a.y,a.z,b.x,b.y,b.z);}
+  return {fill:Float32Array.from(fill),loops:[pts],marks:rightMarks(pts)};
+}
+function polySectionName(pts){
+  const k=pts.length; if(k<3)return '없음';
+  const L=[],A=[];
+  for(let i=0;i<k;i++){const a=pts[i],b=pts[(i+1)%k],c=pts[(i+2)%k]; L.push(a.distanceTo(b));
+    A.push(b.clone().sub(a).normalize().dot(c.clone().sub(b).normalize()));}
+  const eq=(x,y)=>Math.abs(x-y)<2e-3*Math.max(x,y,1e-9);
+  const allL=L.every(x=>eq(x,L[0])), allA=A.every(x=>Math.abs(x-A[0])<2e-3);
+  if(k===3){
+    if(allL)return '정삼각형';
+    const s=[...L].sort((a,b)=>a-b);
+    const right=eq(s[0]*s[0]+s[1]*s[1],s[2]*s[2]); const iso=eq(s[0],s[1])||eq(s[1],s[2]);
+    if(right&&iso)return '직각이등변삼각형'; if(right)return '직각삼각형'; if(iso)return '이등변삼각형'; return '삼각형';
+  }
+  if(k===4){
+    const e=[0,1,2,3].map(i=>pts[(i+1)%4].clone().sub(pts[i]));
+    const par=(a,b)=>a.clone().cross(b).length()<2e-3*a.length()*b.length();
+    const p1=par(e[0],e[2]),p2=par(e[1],e[3]);
+    if(p1&&p2){
+      const right=Math.abs(e[0].dot(e[1]))<2e-3*e[0].length()*e[1].length(); const same=eq(L[0],L[1]);
+      return right?(same?'정사각형':'직사각형'):(same?'마름모':'평행사변형');
+    }
+    if(p1||p2)return '사다리꼴'; return '사각형';
+  }
+  if(allL&&allA)return '정'+K[k]+'각형';
+  return (K[k]||k)+'각형';
+}
+function bandGeoms(loops,n,w){
+  const pos=[];
+  loops.forEach(L=>{
+    const m=L.length, off=[];
+    for(let i=0;i<m;i++){const a=L[(i-1+m)%m],b=L[(i+1)%m]; const t=b.clone().sub(a);
+      if(t.lengthSq()<1e-12){off.push(V(0,0,0));continue;} t.normalize(); off.push(n.clone().cross(t).multiplyScalar(w/2));}
+    for(let i=0;i<m;i++){const j=(i+1)%m;
+      const a1=L[i].clone().add(off[i]),a2=L[i].clone().sub(off[i]),b1=L[j].clone().add(off[j]),b2=L[j].clone().sub(off[j]);
+      pos.push(a1.x,a1.y,a1.z,a2.x,a2.y,a2.z,b1.x,b1.y,b1.z, a2.x,a2.y,a2.z,b2.x,b2.y,b2.z,b1.x,b1.y,b1.z);}
+  });
+  return Float32Array.from(pos);
+}
+
+/* ---------- 회전체 ---------- */
+const REV_KINDS={rect:{fig:'직사각형',solid:'원기둥'},tri:{fig:'직각삼각형',solid:'원뿔'},semi:{fig:'반원',solid:'구'},trap:{fig:'직각사다리꼴',solid:'원뿔대'},draw:{fig:'나만의 도형',solid:'나만의 도형의 회전체'}};
+function revPoly(kind,gap,custom){
+  const R=1,h=2,base=[],smooth=[],ring=[];
+  const push=(r,y,s,rg)=>{base.push([r,y]);smooth.push(!!s);ring.push(rg!==false);};
+  if(kind==='rect'){push(0,-h/2);push(R,-h/2);push(R,h/2);push(0,h/2);}
+  else if(kind==='tri'){push(0,-h/2);push(R,-h/2);push(0,h/2);}
+  else if(kind==='trap'){push(0,-h/2);push(R,-h/2);push(R*0.5,h/2);push(0,h/2);}
+  else if(kind==='semi'){const N=36,RR=1.3; for(let k=0;k<=N;k++){const a=-Math.PI/2+Math.PI*k/N; push((k===0||k===N)?0:RR*Math.cos(a),RR*Math.sin(a),k>0&&k<N,k===0||k===N||k===N/2);}}
+  else custom.forEach(p=>push(p[0],p[1]));
+  let pts=base.map(p=>[p[0]+gap,p[1]]);
+  let area=0; for(let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length]; area+=a[0]*b[1]-b[0]*a[1];}
+  if(area<0){pts.reverse();smooth.reverse();ring.reverse();}
+  let rMax=0,yMin=1e9,yMax=-1e9; pts.forEach(p=>{rMax=Math.max(rMax,p[0]);yMin=Math.min(yMin,p[1]);yMax=Math.max(yMax,p[1]);});
+  return {type:'rev',kind,gap,pts,smooth,ring,rMax,yMin,yMax};
+}
+function revStrips(P,sweep,seg){
+  const m=P.pts.length, SN=[];
+  for(let k=0;k<m;k++){const a=P.pts[k],b=P.pts[(k+1)%m]; const dr=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dr,dy)||1; SN.push([dy/l,-dr/l]);}
+  const avg=(a,b)=>{const x=a[0]+b[0],y=a[1]+b[1],l=Math.hypot(x,y)||1;return [x/l,y/l];};
+  const strips=[];
+  for(let k=0;k<m;k++){
+    const kb=(k+1)%m, a=P.pts[k], b=P.pts[kb];
+    if(a[0]<1e-9&&b[0]<1e-9)continue;
+    const nA=P.smooth[k]?avg(SN[(k-1+m)%m],SN[k]):SN[k];
+    const nB=P.smooth[kb]?avg(SN[k],SN[kb]):SN[k];
+    const pos=new Float32Array((seg+1)*6), nor=new Float32Array((seg+1)*6), idx=new Uint16Array(seg*6);
+    for(let s=0;s<=seg;s++){
+      const an=sweep*s/seg,c=Math.cos(an),sn=-Math.sin(an),i=s*6;
+      pos[i]=a[0]*c;pos[i+1]=a[1];pos[i+2]=a[0]*sn; nor[i]=nA[0]*c;nor[i+1]=nA[1];nor[i+2]=nA[0]*sn;
+      pos[i+3]=b[0]*c;pos[i+4]=b[1];pos[i+5]=b[0]*sn; nor[i+3]=nB[0]*c;nor[i+4]=nB[1];nor[i+5]=nB[0]*sn;
+    }
+    for(let s=0;s<seg;s++){const i=s*2,j=s*6; idx[j]=i;idx[j+1]=i+2;idx[j+2]=i+1;idx[j+3]=i+1;idx[j+4]=i+2;idx[j+5]=i+3;}
+    strips.push({pos,nor,idx,kind:Math.abs(b[1]-a[1])<1e-9?'base':'side'});
+  }
+  const rings=[]; P.pts.forEach((p,k)=>{if(P.ring[k]&&p[0]>1e-9)rings.push({r:p[0],y:p[1]});});
+  return {strips,rings};
+}
+function profileInterval(P,y0){
+  const y=y0+1e-7, m=P.pts.length, rs=[];
+  for(let i=0;i<m;i++){const a=P.pts[i],b=P.pts[(i+1)%m]; const da=a[1]-y,db=b[1]-y;
+    if((da<0&&db>0)||(da>0&&db<0)){const t=da/(da-db); rs.push(a[0]+(b[0]-a[0])*t);}}
+  if(rs.length<2)return null; return [Math.min(...rs),Math.max(...rs)];
+}
+function revCapPerp(P,y0){
+  const iv=profileInterval(P,y0); if(!iv)return null;
+  const r0=iv[0],r1=iv[1],seg=96,fill=[],loops=[];
+  const ring=r=>{const p=[];for(let i=0;i<seg;i++){const a=TAU*i/seg;p.push(V(r*Math.cos(a),y0,r*Math.sin(a)));}return p;};
+  const outer=ring(r1); loops.push(outer);
+  if(r0>1e-6){const inner=ring(r0); loops.push(inner);
+    for(let i=0;i<seg;i++){const j=(i+1)%seg,a=inner[i],b=outer[i],c=outer[j],e=inner[j];
+      fill.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z, a.x,a.y,a.z,c.x,c.y,c.z,e.x,e.y,e.z);}
+  }else{for(let i=0;i<seg;i++){const j=(i+1)%seg,b=outer[i],c=outer[j]; fill.push(0,y0,0,b.x,b.y,b.z,c.x,c.y,c.z);}}
+  return {fill:Float32Array.from(fill),loops,inner:r0,outer:r1};
+}
+function revCapPar(P,d){
+  const ad=Math.abs(d), ys=new Set(), N=90;
+  for(let i=0;i<=N;i++)ys.add(P.yMin+(P.yMax-P.yMin)*i/N);
+  P.pts.forEach(p=>ys.add(p[1]));
+  const Y=[...ys].sort((a,b)=>a-b);
+  const rows=Y.map(y=>{const yy=clamp(y,P.yMin+1e-6,P.yMax-1e-6); const iv=profileInterval(P,yy);
+    if(!iv||iv[1]<=ad+1e-9)return null;
+    return {y,zhi:Math.sqrt(iv[1]*iv[1]-d*d),zlo:iv[0]>ad?Math.sqrt(iv[0]*iv[0]-d*d):0};});
+  const segs=[]; let cur=[];
+  rows.forEach(r=>{if(r)cur.push(r);else{if(cur.length>1)segs.push(cur);cur=[];}}); if(cur.length>1)segs.push(cur);
+  if(!segs.length)return null;
+  const fill=[],loops=[]; const P3=(z,y)=>V(d,y,z);
+  const quad=(a,b,c,e)=>{fill.push(a.x,a.y,a.z,b.x,b.y,b.z,c.x,c.y,c.z, a.x,a.y,a.z,c.x,c.y,c.z,e.x,e.y,e.z);};
+  let two=false;
+  segs.forEach(sg=>{
+    const hollow=sg.some(r=>r.zlo>1e-9); if(hollow)two=true;
+    for(let i=0;i<sg.length-1;i++){const A=sg[i],B=sg[i+1];
+      if(!hollow)quad(P3(-A.zhi,A.y),P3(A.zhi,A.y),P3(B.zhi,B.y),P3(-B.zhi,B.y));
+      else{quad(P3(A.zlo,A.y),P3(A.zhi,A.y),P3(B.zhi,B.y),P3(B.zlo,B.y)); quad(P3(-A.zhi,A.y),P3(-A.zlo,A.y),P3(-B.zlo,B.y),P3(-B.zhi,B.y));}}
+    if(!hollow){const lp=[]; sg.forEach(r=>lp.push(P3(r.zhi,r.y))); for(let i=sg.length-1;i>=0;i--)lp.push(P3(-sg[i].zhi,sg[i].y)); loops.push(lp);}
+    else{const a=[],b=[]; sg.forEach(r=>{a.push(P3(r.zlo,r.y));b.push(P3(-r.zlo,r.y));}); for(let i=sg.length-1;i>=0;i--){a.push(P3(sg[i].zhi,sg[i].y));b.push(P3(-sg[i].zhi,sg[i].y));} loops.push(a,b);}
+  });
+  return {fill:Float32Array.from(fill),loops,two};
+}
+function revSectionLabel(P,mode,d,cap){
+  if(!cap)return '단면이 생기지 않습니다';
+  if(P.kind==='semi'&&P.gap<=1e-6)return '원';
+  if(mode==='perp')return cap.inner>1e-6?'고리 모양 (경계가 원 두 개)':'원';
+  const contain=Math.abs(d)<0.02;
+  if(P.gap>1e-6&&(contain||P.gap>Math.abs(d)))return '떨어진 도형 2개';
+  if(contain)return {rect:'직사각형',tri:'이등변삼각형',trap:'등변사다리꼴',semi:'원',draw:'선대칭도형'}[P.kind];
+  if(P.kind==='rect')return '직사각형';
+  return '곡선이 포함된 도형';
+}
+/*CORE-END*/
+
+/* ===================== 앱 ===================== */
+const $=id=>document.getElementById(id);
+const S={tab:'poly', step:'choose',
+  poly:{fam:'prism',n:3,h:1.6,r:1,irr:null}, plat:{n:4,type:'tetra',valid:true}, rev:{fig:'rect',angle:0,gap:0,source:'preset',drawn:null,editing:false},
+  vtx:false, mode:'none', secKind:'par', secPos:0, secRot:0, split:0, splitAmt:0, fold:0, foldTarget:0, auto:false, playing:false, flyFlat:false};
+let model=null, net=null, revP=null, sec=null, polyMeshes=[];
+
+/* --- three 기본 --- */
+const cv=$('gl');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+renderer.setClearColor(0x000000,0); renderer.localClippingEnabled=true; renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(14,1.4,0.1,400); scene.add(camera);
+scene.add(new THREE.AmbientLight(0xffffff,0.78));
+const dl1=new THREE.DirectionalLight(0xffffff,0.5); dl1.position.set(3,5,4); scene.add(dl1);
+const head=new THREE.DirectionalLight(0xffffff,0.4); head.position.set(0.5,0.8,2); camera.add(head);
+
+/* 재질 세트: 깊이 선행 패스 + 반투명 면 + 실선(앞) + 점선(뒤) */
+const FACE_OPACITY=0.55;
+function dotTex(){const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle='#fff';x.beginPath();x.arc(32,32,30,0,TAU);x.fill();return new THREE.CanvasTexture(c);}
+const HULL_U={uThick:{value:1.7},uRes:{value:new THREE.Vector2(800,600)}};
+function hullMat(){
+  const m=new THREE.MeshBasicMaterial({color:0x17212B,side:THREE.BackSide});
+  m.onBeforeCompile=sh=>{
+    sh.uniforms.uThick=HULL_U.uThick; sh.uniforms.uRes=HULL_U.uRes;
+    sh.vertexShader='uniform float uThick;\nuniform vec2 uRes;\n'+sh.vertexShader.replace('#include <project_vertex>','#include <project_vertex>\n  vec2 hn=(projectionMatrix*vec4(normalMatrix*normal,0.0)).xy;\n  if(length(hn)>1e-5){hn=normalize(hn); gl_Position.xy+=hn*uThick*2.0/uRes*gl_Position.w;}');
+  };
+  return m;
+}
+function makeSet(){
+  const off={polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1};
+  const face=c=>new THREE.MeshLambertMaterial(Object.assign({color:c,transparent:true,opacity:FACE_OPACITY,side:THREE.DoubleSide,depthWrite:false},off));
+  return {
+    depth:new THREE.MeshBasicMaterial(Object.assign({colorWrite:false,side:THREE.DoubleSide},off)),
+    base:face(0x3FAE6A), side:face(0x3FAE6A), plat:face(0x3FAE6A),
+    hull:hullMat(),
+    gen:new THREE.LineBasicMaterial({color:0x17212B,depthTest:false,transparent:true}),
+    mark:new THREE.LineBasicMaterial({color:0x17212B,depthTest:false,transparent:true,opacity:0.45}),
+    vtx:new THREE.PointsMaterial({color:0x1B2A6B,size:12,sizeAttenuation:false,map:dotTex(),alphaTest:0.5,transparent:true,depthTest:false}),
+    edge:new THREE.LineBasicMaterial({color:0x17212B}),
+    dash:new THREE.LineDashedMaterial({color:0x17212B,dashSize:0.07,gapSize:0.06,transparent:true,opacity:0.7,depthFunc:THREE.GreaterDepth,depthWrite:false})
+  };
+}
+const setA=makeSet(), setB=makeSet();
+[setA,setB].forEach(m=>{m.plat.opacity=0.88;});
+const PLAT_COLOR={tetra:0xA9CBEF,cube:0xF7B8C6,octa:0xFBCB92,dodeca:0xA8DDDA,icosa:0xB9B5E0};
+const planeA=new THREE.Plane(V(0,-1,0),0), planeB=new THREE.Plane(V(0,1,0),0);
+const gSil=new THREE.Group(), gA=new THREE.Group(), gB=new THREE.Group(), gFig=new THREE.Group(), gAxis=new THREE.Group(), gSec=new THREE.Group();
+scene.add(gA,gB,gFig,gAxis,gSec,gSil);
+const axisMat=new THREE.MeshBasicMaterial({color:0x17212B,depthTest:false,transparent:true});
+const rodMat=new THREE.MeshBasicMaterial({color:0x17212B});
+const rodDash=new THREE.LineDashedMaterial({color:0x17212B,dashSize:0.09,gapSize:0.07,depthFunc:THREE.GreaterDepth,depthWrite:false});
+
+/* 단면 시각물 */
+const capFillMat=new THREE.MeshLambertMaterial({color:0x2B6CB0,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-2,polygonOffsetUnits:-2});
+const capBandMat=new THREE.MeshBasicMaterial({color:0x17212B,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
+function capGroup(){const g=new THREE.Group(); const f=new THREE.Mesh(new THREE.BufferGeometry(),capFillMat), b=new THREE.Mesh(new THREE.BufferGeometry(),capBandMat); f.renderOrder=1.5;b.renderOrder=1.6; g.add(f,b); return g;}
+const capMarkMat=new THREE.LineBasicMaterial({color:0x17212B,depthTest:false,transparent:true,opacity:0.45});
+const capA=capGroup(), capB=capGroup();
+const planeQuad=new THREE.Mesh(new THREE.PlaneGeometry(4,4),new THREE.MeshBasicMaterial({color:0x2FA7BA,transparent:true,opacity:0.16,side:THREE.DoubleSide,depthWrite:false}));
+planeQuad.renderOrder=15;
+planeQuad.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints([V(-2,-2,0),V(2,-2,0),V(2,2,0),V(-2,2,0)]),new THREE.LineBasicMaterial({color:0x2FA7BA})));
+gSec.add(capA,capB,planeQuad);
+
+function loopSegGeo(pts){
+  /* 모서리마다 방향·점선 시작점을 통일: 두 면이 같은 모서리를 그려도 점선이 정확히 겹침 */
+  const pos=[],ld=[],m=pts.length, key=p=>[p.x,p.y,p.z].map(v=>Math.round(v*1e4));
+  for(let i=0;i<m;i++){
+    let a=pts[i],b=pts[(i+1)%m]; const ka=key(a),kb=key(b); let sw=false;
+    for(let k=0;k<3;k++){ if(ka[k]!==kb[k]){sw=ka[k]>kb[k];break;} }
+    if(sw){const t=a;a=b;b=t;}
+    pos.push(a.x,a.y,a.z,b.x,b.y,b.z); ld.push(0,a.distanceTo(b));
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(Float32Array.from(pos),3));
+  g.setAttribute('lineDistance',new THREE.BufferAttribute(Float32Array.from(ld),1));
+  return g;
+}
+function disposeChildren(g){g.children.slice().forEach(ch=>{g.remove(ch); ch.traverse(o=>{if(o.geometry)o.geometry.dispose();});});}
+function addSolidMesh(g,geo,mat,set,lineGeos){
+  const d=new THREE.Mesh(geo,set.depth); d.renderOrder=0;
+  const f=new THREE.Mesh(geo,mat); f.renderOrder=1;
+  g.add(d); g.add(f); return {d,f};
+}
+function polyGroup(m,set){
+  const g=new THREE.Group(), faces=[];
+  m.faces.forEach(f=>{
+    const pts=f.idx.map(k=>m.verts[k]), pos=[], nor=[];
+    for(let j=1;j<pts.length-1;j++){[pts[0],pts[j],pts[j+1]].forEach(p=>{pos.push(p.x,p.y,p.z);nor.push(f.normal.x,f.normal.y,f.normal.z);});}
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(pos),3));
+    geo.setAttribute('normal',new THREE.BufferAttribute(new Float32Array(nor),3));
+    const holder=new THREE.Group();
+    const d=new THREE.Mesh(geo,set.depth); d.renderOrder=0;
+    const fm=new THREE.Mesh(geo,set[f.kind]); fm.renderOrder=1;
+    const lg=new THREE.BufferGeometry().setFromPoints(pts);
+    const l1=new THREE.LineLoop(lg,set.edge); l1.renderOrder=2;
+    const l2=new THREE.LineSegments(loopSegGeo(pts),set.dash); l2.renderOrder=3;
+    holder.add(d,fm,l1,l2);
+    const pp=new THREE.Points(new THREE.BufferGeometry().setFromPoints(pts),set.vtx); pp.renderOrder=25; pp.userData.vtx=true; pp.visible=S.vtx; holder.add(pp);
+    g.add(holder); faces.push(holder);
+  });
+  g.userData.faces=faces; return g;
+}
+function revGroup(P,sweep,set){
+  const g=new THREE.Group(); const seg=Math.max(3,Math.ceil(72*sweep/TAU)); const st=revStrips(P,sweep,seg);
+  st.strips.forEach(s=>{
+    const geo=new THREE.BufferGeometry();
+    geo.setAttribute('position',new THREE.BufferAttribute(s.pos,3)); geo.setAttribute('normal',new THREE.BufferAttribute(s.nor,3)); geo.setIndex(new THREE.BufferAttribute(s.idx,1));
+    const d=new THREE.Mesh(geo,set.depth); d.renderOrder=0; const f=new THREE.Mesh(geo,s.kind==='base'?set.base:set.side); f.renderOrder=1; g.add(d,f);
+    if(sweep>=TAU-1e-3){const hl=new THREE.Mesh(geo,set.hull); hl.renderOrder=2; g.add(hl);}
+  });
+  st.rings.forEach(rg=>{
+    const pts=[]; for(let s=0;s<=seg;s++){const a=sweep*s/seg; pts.push(V(rg.r*Math.cos(a),rg.y,-rg.r*Math.sin(a)));}
+    const lg=new THREE.BufferGeometry().setFromPoints(pts);
+    const l1=new THREE.Line(lg,set.edge); l1.renderOrder=2; const l2=new THREE.Line(lg,set.dash); l2.computeLineDistances(); l2.renderOrder=3; g.add(l1,l2);
+  });
+  if(sweep<TAU-1e-3){g.add(lineSetDual(genSegs(P,0,false),set)); g.add(lineSetDual(genSegs(P,sweep,false),set));}
+  return g;
+}
+function genSegs(P,ang,sideOnly){
+  const m=P.pts.length, out=[], c=Math.cos(ang), sn=-Math.sin(ang);
+  for(let k=0;k<m;k++){const a=P.pts[k],b=P.pts[(k+1)%m];
+    if(a[0]<1e-9&&b[0]<1e-9)continue;
+    if(sideOnly&&Math.abs(a[1]-b[1])<1e-9)continue;
+    out.push(a[0]*c,a[1],a[0]*sn,b[0]*c,b[1],b[0]*sn);}
+  return new Float32Array(out);
+}
+function lineSet(arr,set){
+  const g=new THREE.Group(); if(!arr.length)return g;
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(arr,3));
+  const l1=new THREE.LineSegments(geo,set.gen); l1.renderOrder=4; g.add(l1); return g;
+}
+function lineSetDual(arr,set){
+  const g=new THREE.Group(); if(!arr.length)return g;
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.BufferAttribute(arr,3));
+  const l1=new THREE.LineSegments(geo,set.edge); l1.renderOrder=2; const l2=new THREE.LineSegments(geo,set.dash); l2.computeLineDistances(); l2.renderOrder=3; g.add(l1,l2); return g;
+}
+function figureGroup(P,az,filled){
+  const g=new THREE.Group(), NAVY=CUR.line;
+  const pts3=P.pts.map(p=>V(p[0],p[1],0));
+  if(filled){
+    const shape=new THREE.Shape(P.pts.map(p=>new THREE.Vector2(p[0],p[1])));
+    const m=new THREE.Mesh(new THREE.ShapeGeometry(shape),new THREE.MeshBasicMaterial({color:CUR.fig,transparent:true,opacity:0.9,side:THREE.DoubleSide,depthTest:false,depthWrite:false})); m.renderOrder=4; g.add(m);
+    const bg=new THREE.BufferGeometry(); bg.setAttribute('position',new THREE.BufferAttribute(bandGeoms([pts3],V(0,0,1),0.05),3));
+    const band=new THREE.Mesh(bg,new THREE.MeshBasicMaterial({color:NAVY,side:THREE.DoubleSide,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4,polygonOffsetUnits:-4})); band.renderOrder=4.2; g.add(band);
+    const hid=new THREE.LineSegments(loopSegGeo(pts3),new THREE.LineDashedMaterial({color:NAVY,dashSize:0.07,gapSize:0.06,depthFunc:THREE.GreaterDepth,depthWrite:false})); hid.renderOrder=4.25; g.add(hid);
+    const mm=P.pts.length, sq=0.14;
+    for(let i=0;i<mm;i++){
+      const v=P.pts[i],pr=P.pts[(i-1+mm)%mm],nx=P.pts[(i+1)%mm];
+      let u=[pr[0]-v[0],pr[1]-v[1]],w=[nx[0]-v[0],nx[1]-v[1]]; const lu=Math.hypot(...u),lw=Math.hypot(...w);
+      if(lu<0.3||lw<0.3)continue; u=[u[0]/lu,u[1]/lu]; w=[w[0]/lw,w[1]/lw];
+      if(Math.abs(u[0]*w[0]+u[1]*w[1])>0.02)continue;
+      const a=V(v[0]+u[0]*sq,v[1]+u[1]*sq,0.001),b=V(v[0]+(u[0]+w[0])*sq,v[1]+(u[1]+w[1])*sq,0.001),c=V(v[0]+w[0]*sq,v[1]+w[1]*sq,0.001);
+      const rm=new THREE.Line(new THREE.BufferGeometry().setFromPoints([a,b,c]),new THREE.LineBasicMaterial({color:NAVY,depthTest:false})); rm.renderOrder=4.3; g.add(rm);
+    }
+  }else{
+    const ln=new THREE.LineSegments(loopSegGeo(pts3),new THREE.LineDashedMaterial({color:NAVY,dashSize:0.09,gapSize:0.06,transparent:true,opacity:0.7,depthTest:false})); ln.renderOrder=4.1; g.add(ln);
+  }
+  g.rotation.y=az; return g;
+}
+let labelTex=null;
+function labelSprite(){
+  const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d');
+  x.font='italic 700 92px "Times New Roman",serif'; x.textAlign='center'; x.textBaseline='middle';
+  x.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ink').trim()||'#17212B'; x.fillText('l',64,70);
+  const t=new THREE.CanvasTexture(c); const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,depthTest:false,transparent:true})); s.scale.set(0.42,0.42,1); s.renderOrder=30; return s;
+}
+function buildAxis(P){
+  disposeChildren(gAxis);
+  const top=P.yMax+0.45, bot=P.yMin-0.35, len=top-bot;
+  const rod=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,len,10),rodMat); rod.position.y=(top+bot)/2; rod.renderOrder=5; gAxis.add(rod);
+  const dl=new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0,bot,0),V(0,top,0)]),rodDash); dl.computeLineDistances(); dl.renderOrder=5.1; gAxis.add(dl);
+  const rho=0.34, cy=top+0.05, pe=Math.PI+0.55, ps=pe-5.1;
+  const P3=f=>V(rho*Math.cos(f),cy,-rho*Math.sin(f));
+  const pts=[]; for(let k=0;k<=48;k++)pts.push(P3(ps+(pe-ps)*k/48));
+  const tube=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),96,0.016,8,false),axisMat); tube.renderOrder=5; gAxis.add(tube);
+  const tan=V(-Math.sin(pe),0,-Math.cos(pe)).normalize();
+  const cone=new THREE.Mesh(new THREE.ConeGeometry(0.06,0.17,14),axisMat); cone.position.copy(P3(pe)).add(tan.clone().multiplyScalar(0.05)); cone.quaternion.setFromUnitVectors(V(0,1,0),tan); cone.renderOrder=5; gAxis.add(cone);
+  const sp=labelSprite(); sp.position.set(0.0,top+0.5,0); gAxis.add(sp);
+}
+
+/* --- 모델 만들기 --- */
+function buildModel(){
+  if(S.tab==='poly'){const {fam,n,h,r,irr}=S.poly;
+    const mk=(hh,rr,fs)=>fam==='prism'?makePrism(n,hh,rr,fs,irr):fam==='pyramid'?makePyramid(n,hh,rr,fs,irr):makeFrustum(n,hh,0.55,rr,fs,irr);
+    const fs=mk(1.6,1)._scale;   /* 기준 크기(높이 1.6, 밑면 1)에 맞춘 고정 배율 → 슬라이더로 실제 크기가 달라짐 */
+    return mk(h,r,fs);}
+  if(S.tab==='plat')return makeNHedron(S.plat.n);
+  return null;
+}
+const CUR={fig:0x2E9BFF,line:0x1B2A6B};
+function paintCap(hex){
+  const o={}; new THREE.Color(hex).getHSL(o);
+  const h=o.h, sat=Math.min(1,Math.max(o.s,0.55));
+  capFillMat.color.setHSL(h,Math.min(1,sat*0.95),0.46); capFillMat.needsUpdate=true;
+  CUR.fig=new THREE.Color().setHSL(h,Math.min(1,sat),0.58).getHex();
+  CUR.line=new THREE.Color().setHSL(h,Math.min(1,sat),0.22).getHex();
+}
+function paint(hex,lift){lift=lift||0;paintCap(hex);[setA,setB].forEach(m=>['base','side','plat'].forEach(k=>{m[k].color.setHex(hex).multiplyScalar(lift?0.82:0.76); m[k].emissive.setHex(hex).multiplyScalar(lift);}));}
+const REV_COLOR={rect:0xA9CBEF,tri:0xF7B8C6,semi:0xFBCB92,trap:0xA8DDDA,draw:0xB9B5E0};   /* 정다면체 5색을 목록 순서대로 */
+const POLY_COLOR={prism:0xFFC47A,pyramid:0xA8DDDA,frustum:0xF7B8C6};
+function rebuildSolid(){
+  [gA,gB,gFig,gSil].forEach(disposeChildren); if(S.tab!=='rev')disposeChildren(gAxis);
+  if(S.tab==='rev'){
+    const r=S.rev; revP=revPoly(r.source==='draw'?'draw':r.fig,r.gap,r.drawn);
+    model={type:'rev',P:revP}; buildAxis(revP); paint(REV_COLOR[revP.kind]||0xA9CBEF,0.32);
+    const sw=clamp(r.angle,0,360)*Math.PI/180;
+    if(sw>0.01){gA.add(revGroup(revP,sw>=TAU-1e-3?TAU:sw,setA)); if(S.mode==='section')gB.add(revGroup(revP,TAU,setB));}
+    if(S.mode!=='section'&&!r.editing&&revP.gap>0.01){
+      [revP.yMax,revP.yMin].forEach(y=>{let rm=1e9; revP.pts.forEach(p=>{if(Math.abs(p[1]-y)<1e-6)rm=Math.min(rm,p[0]);}); if(rm<1e9&&rm>0.02){const lg=new THREE.BufferGeometry().setFromPoints([V(0,y,0),V(rm,y,0)]); const dl=new THREE.Line(lg,new THREE.LineDashedMaterial({color:0x17212B,dashSize:0.07,gapSize:0.06})); dl.computeLineDistances(); dl.renderOrder=8; gFig.add(dl);}});
+    }
+    if(S.mode!=='section'&&!r.editing){gFig.add(figureGroup(revP,sw,true)); if(sw>0.02)gFig.add(figureGroup(revP,0,false));}
+  }else{
+    model=buildModel();
+    if(S.tab==='poly')paint(POLY_COLOR[model.family]);
+    if(model.family==='plat'){const c=model.regular?PLAT_COLOR[model.platType]:0xB7DDB0; [setA,setB].forEach(m=>{m.plat.color.setHex(c).multiplyScalar(0.76); m.plat.emissive.setHex(0);}); paintCap(c);}
+    const ga=polyGroup(model,setA); gA.add(ga); polyMeshes=ga.userData.faces;
+    gB.add(polyGroup(model,setB));
+    net=makeNet(model); if(!net){net=null;}
+  }
+  applyClip(); applyFold();
+}
+
+/* --- 전개도 --- */
+function applyFold(){
+  if(S.tab==='rev'||!net)return;
+  const mats=netMatrices(net.nodes,model,S.fold);
+  mats.forEach((M,i)=>{M.decompose(polyMeshes[i].position,polyMeshes[i].quaternion,polyMeshes[i].scale);});
+}
+
+/* --- 단면 --- */
+function secNormal(){
+  if(S.tab==='rev')return S.secKind==='perp'?V(0,1,0):V(1,0,0);
+  if(S.secKind==='par')return V(0,1,0);
+  const th=S.secRot*Math.PI/180; return V(Math.cos(th),0,Math.sin(th));   /* 밑면과 수직인 평면: 세로축을 중심으로 방향을 돌릴 수 있음 */
+}
+function secRange(){
+  const n=secNormal();
+  if(S.tab==='rev'){const P=revP; return S.secKind==='perp'?[P.yMin+0.04,P.yMax-0.04]:[-P.rMax+0.03,P.rMax-0.03];}
+  let lo=1e9,hi=-1e9; model.verts.forEach(v=>{const p=n.dot(v); lo=Math.min(lo,p);hi=Math.max(hi,p);}); return [lo+0.03,hi-0.03];
+}
+function setCap(grp,cap,n){
+  while(grp.children.length>2){const o=grp.children.pop(); if(o.geometry)o.geometry.dispose();}
+  if(cap.marks&&cap.marks.length){const mg=new THREE.BufferGeometry(); mg.setAttribute('position',new THREE.BufferAttribute(cap.marks,3)); const ml=new THREE.LineSegments(mg,capMarkMat); ml.renderOrder=7; grp.add(ml);}
+  const [f,b]=grp.children; f.geometry.dispose(); b.geometry.dispose();
+  f.geometry=new THREE.BufferGeometry(); f.geometry.setAttribute('position',new THREE.BufferAttribute(cap.fill,3));
+  b.geometry=new THREE.BufferGeometry(); b.geometry.setAttribute('position',new THREE.BufferAttribute(bandGeoms(cap.loops,n,0.022),3));
+  const nr=new Float32Array(cap.fill.length); for(let i=0;i<nr.length;i+=3){nr[i]=n.x;nr[i+1]=n.y;nr[i+2]=n.z;} f.geometry.setAttribute('normal',new THREE.BufferAttribute(nr,3));
+}
+/* 다면체의 수직 단면: 평면이 도형의 중심축을 지나는 위치에만 슬라이더가 붙게 함(밑면이 정다각형이 아니어도 적용)
+   중심축: 각뿔은 꼭짓점에서 밑면에 내린 수선, 각기둥·각뿔대는 밑면의 무게중심을 지나는 수선
+   (각뿔은 이때 평면이 각뿔의 꼭짓점도 지나므로 삼각형 단면이 나옴) */
+function axisXZ(){   /* 중심축이 지나는 점의 (x,z) */
+  if(!model||!model.verts||!model.n)return null;
+  const nb=model.n, P=model.verts;
+  if(model.family==='pyramid')return [P[nb].x,P[nb].z];
+  let A=0,cx=0,cz=0;   /* 밑면(다각형)의 넓이 무게중심 */
+  for(let i=0;i<nb;i++){const p=P[i],q=P[(i+1)%nb]; const f=p.x*q.z-q.x*p.z; A+=f; cx+=(p.x+q.x)*f; cz+=(p.z+q.z)*f;}
+  if(Math.abs(A)<1e-9)return null; return [cx/(3*A),cz/(3*A)];
+}
+function axisPos(){
+  const c=axisXZ(); if(!c)return null; const n=secNormal(); return c[0]*n.x+c[1]*n.z;
+}
+function snapSecPos(v){
+  if(S.tab!=='poly'||S.secKind!=='perp'||!model)return v;
+  const a=axisPos(); if(a==null||!isFinite(a))return v;
+  return Math.abs(v-a)<0.035?a:v;
+}
+/* 평면의 방향을 돌릴 때: 현재 평면의 위치(S.secPos)에서 평면이 중심축을 지나게 되는 방향에 슬라이더가 붙게 함 */
+function snapSecRot(deg){
+  if(S.tab!=='poly'||S.secKind!=='perp'||!model)return deg;
+  const c=axisXZ(); if(!c)return deg;
+  const R=Math.hypot(c[0],c[1]); if(R<1e-6)return deg;   /* 축이 원점이면 방향과 상관없음 */
+  const g=t=>{const r=t*Math.PI/180; return c[0]*Math.cos(r)+c[1]*Math.sin(r)-S.secPos;};
+  let best=deg, bd=1e9;
+  for(let t=0;t<180;t+=1){   /* g의 부호가 바뀌는 구간에서 이분법으로 해를 찾음 */
+    let a=t,b=t+1,ga=g(a),gb=g(b); if(ga===0){} else if(ga*gb>0)continue;
+    for(let i=0;i<30;i++){const m=(a+b)/2,gm=g(m); if(ga*gm<=0){b=m;gb=gm;} else {a=m;ga=gm;}}
+    const root=(a+b)/2, d=Math.abs(root-deg);
+    if(d<bd){bd=d;best=root;}
+  }
+  const tolDeg=Math.min(4,(0.035/R)*180/Math.PI);   /* 위치 오차 0.035에 해당하는 각도(최대 4°) */
+  return bd<=tolDeg?best:deg;
+}
+function computeSection(){
+  const n=secNormal(), d=S.secPos; let cap=null,label='';
+  if(S.tab==='rev'){
+    cap=S.secKind==='perp'?revCapPerp(revP,d):revCapPar(revP,d);
+    label=revSectionLabel(revP,S.secKind,d,cap);
+  }else{
+    const s=slicePoints(model.edgeArr,n,d);
+    if(s.pts.length>=3){cap=capFromPts(s); label=polySectionName(s.pts);} else label='단면이 생기지 않습니다';
+  }
+  sec={n,d,cap,label}; return sec;
+}
+function updateSectionView(){
+  if(S.mode!=='section'){gSec.visible=false; return;}
+  gSec.visible=true;
+  const s=computeSection(), n=s.n, sep=0.95*S.splitAmt;
+  planeA.set(n.clone().negate(),s.d); planeB.set(n.clone(),-(s.d+sep));
+  gB.position.copy(n).multiplyScalar(sep);
+  if(s.cap){setCap(capA,s.cap,n); setCap(capB,s.cap,n);}
+  capA.visible=!!s.cap; capB.visible=!!s.cap&&S.splitAmt>0.001; capB.position.copy(n).multiplyScalar(sep);
+  planeQuad.position.copy(n).multiplyScalar(s.d); planeQuad.quaternion.setFromUnitVectors(V(0,0,1),n);
+  planeQuad.visible=false;
+  const nm=$('secName'); if(nm)nm.textContent=s.label;
+  const nt=$('secNote'); if(nt)nt.textContent=secNote();
+}
+function secNote(){
+  if(S.tab==='poly')return S.secKind==='par'?'':'밑면과 수직인 평면은 방향이 여러 가지입니다. 평면의 방향을 바꾸며 단면의 모양을 관찰해 봅시다.';
+  if(S.tab!=='rev')return '';
+  if(S.secKind==='perp')return '평면의 위치를 바꾸며 단면의 모양을 관찰해 봅시다.';
+  if(Math.abs(S.secPos)<0.02)return '회전축을 포함하는 평면으로 자른 단면의 모양을 관찰해 봅시다.';
+  return '';
+}
+function applyClip(){
+  const on=S.mode==='section', split=on&&S.splitAmt>0.001;
+  const A=split?[planeA]:[], B=split?[planeB]:[];
+  const inside=on&&!split;
+  capFillMat.depthTest=!inside; capFillMat.transparent=inside; capFillMat.opacity=inside?0.9:1; capFillMat.depthWrite=!inside; capFillMat.needsUpdate=true;
+  capBandMat.depthTest=!inside; capBandMat.needsUpdate=true;
+  Object.keys(setA).forEach(k=>{setA[k].clippingPlanes=A; setB[k].clippingPlanes=B;});
+  gB.visible=split;
+}
+
+/* --- 화면 상태 --- */
+function setMode(m){
+  const prev=S.mode; S.mode=m; if(m!=='net')S.netLoop=false;
+  if(m!=='net'){S.foldTarget=0;}
+  if(m!=='section'){S.split=0; S.splitAmt=0;}
+  if(S.tab==='rev'&&m==='section'&&S.rev.angle<360){S.rev.angle=360; $('revAngle').value=360; $('revAngleO').textContent='360°';}
+  if(S.tab==='rev'||prev==='section'||m==='section'){rebuildSolid();}
+  if(m==='net'){S.foldTarget=1; S.flyFlat=true; S.foldSpeed=1/2.2;}
+  if(prev==='net'&&m!=='net'){flyTo({az:0.75,pol:1.1,r:11.3,tx:0,ty:0,tz:0});}
+  if(m==='section'&&S.tab==='rev')resetView(true);
+  if(m==='section'){
+    const [lo,hi]=secRange(); S.secPos=lo+(hi-lo)*(S.tab==='rev'&&S.secKind==='par'?0.62:0.4);
+    if(S.tab==='rev'&&S.secKind==='par'&&revP.gap>0)S.secPos=0;
+  }
+  applyClip(); updateSectionView(); renderUnder(); syncButtons();
+}
+function toggleSec(kind){
+  if(S.mode==='section'&&S.secKind===kind){setMode('none');return;}
+  S.secKind=kind;
+  if(S.mode==='section'){const [lo,hi]=secRange(); S.secPos=clamp(S.secPos,lo,hi); if(S.tab==='rev'&&kind==='par')S.secPos=lo+(hi-lo)*0.62; else S.secPos=lo+(hi-lo)*0.4; S.split=0;S.splitAmt=0; applyClip(); updateSectionView(); renderUnder(); syncButtons(); return;}
+  setMode('section');
+}
+function setTip(b,t){b.setAttribute('aria-label',t);}
+function syncButtons(){
+  document.querySelectorAll('.ctl:not([hidden]) .js-sec').forEach(b=>b.classList.toggle('on',S.mode==='section'&&b.dataset.sec===S.secKind));
+  document.querySelectorAll('.js-net').forEach(b=>{b.classList.toggle('on',S.mode==='net'); setTip(b,S.mode==='net'?'입체도형 보기':'전개도 보기');});
+  document.querySelectorAll('.js-vtx').forEach(b=>{b.classList.toggle('on',S.vtx); setTip(b,S.vtx?'꼭짓점 숨기기':'꼭짓점 보기');});
+  const rc=$('revContain'); rc.classList.toggle('on',S.mode==='section'&&S.secKind==='par'&&Math.abs(S.secPos)<0.02);
+  $('revDrawDel').disabled=!S.rev.drawn; const rd=$('revDraw'); rd.classList.toggle('on',S.rev.editing||S.rev.source==='draw');
+  const ra=$('revAuto'); ra.classList.toggle('on',S.tab==='rev'?S.playing:S.auto);
+  document.querySelectorAll('.js-auto').forEach(b=>{b.classList.toggle('on',S.tab==='rev'?S.playing:S.auto);});
+  const lbl=S.tab==='rev'?(S.playing?'멈추기':'자동 회전'):(S.auto?'자동 회전 멈추기':'자동 회전'); document.querySelectorAll('.js-auto').forEach(b=>{setTip(b,lbl);});
+}
+
+/* --- 아래 영역(3D 화면 아래 조작) --- */
+function renderUnder(){
+  const u=$('under'); let h='';
+  if(S.tab==='rev'&&S.rev.editing){
+    h=`<div class="u-row"><span class="u-note em">회전축(검은 선)의 왼쪽에 평면도형을 그립니다. 끌어서 그리거나, 점을 찍어 이어도 됩니다.</span></div>
+       <div class="u-row"><button class="btn" id="dUndo">되돌리기</button><button class="btn" id="dClear">지우기</button><button class="btn primary" id="dGo">완료하기</button><span class="u-note warn" id="dMsg"></span></div>`;
+  }else if(S.mode==='net'){
+    const pct=Math.round(S.fold*100);
+    h=`<div class="u-row"><span class="u-note em">전개도는 여러 가지 방법으로 그릴 수 있으며, 화면의 전개도는 그중 한 가지 예시입니다.</span></div>
+       <div class="u-row"><label for="foldR">펼침 정도</label><input type="range" id="foldR" min="0" max="100" step="1" value="${pct}"><output id="foldO">${pct}%</output></div>
+       <div class="u-row"><button class="btn" id="netFront">정면에서 보기</button><button class="btn primary" id="netPlay">${S.netLoop?'자동재생 멈추기':'자동재생'}</button></div>`;
+  }else if(S.mode==='section'){
+    const [lo,hi]=secRange();
+    h=`<div class="u-row"><label for="secR">평면의 위치</label><input type="range" id="secR" min="${lo.toFixed(3)}" max="${hi.toFixed(3)}" step="0.005" value="${S.secPos}"><button class="btn ${S.split?'on':''}" id="splitBtn">${S.split?'다시 합치기':'단면으로 쪼개기'}</button></div>
+       ${(S.tab==='poly'&&S.secKind!=='par')?`<div class="u-row"><label for="secRot">평면의 방향</label><input type="range" id="secRot" min="0" max="180" step="1" value="${S.secRot}"><output id="secRotO">${Math.round(S.secRot)}°</output></div>`:''}
+       <div class="u-row"><span class="chipx">단면의 모양 <b id="secName"></b></span><span class="u-note em" id="secNote"></span></div>`;
+  }else if(S.tab==='rev'&&S.rev.source==='draw'){
+    h=`<div class="u-row"><button class="btn" id="dAgain">다시 그리기</button><span class="u-note">나만의 도형을 회전시킨 모양입니다.</span></div>`;
+  }
+  u.innerHTML=h; u.hidden=!h;
+  if(S.tab==='rev'&&S.rev.editing){document.getElementById('dMsg').textContent='';}
+  updateSectionView();
+  resize();
+}
+
+/* --- HUD --- */
+function updateHud(){
+  $('hudLegend').hidden=!!(S.tab==='rev'&&S.rev.editing);   /* 그리는 중에는 앞쪽·뒤쪽 안내가 축 기호와 겹치므로 숨김 */
+  let name='',sub='',hint='드래그해서 돌려 보기 · 마우스 휠 또는 두 손가락으로 확대/축소';
+  if(S.tab==='poly'){name=model.name; const fc=S.poly.n+(S.poly.fam==='pyramid'?1:2); sub=(['','','','','사','오','육','칠','팔','구','십','십일','십이'][fc]||fc)+'면체';}
+  else if(S.tab==='plat'){name=model.name; sub=model.regular?'정다면체':(model.note+' · 정다면체가 아닙니다');}
+  else{
+    const k=REV_KINDS[revP.kind]; const gapy=revP.gap>1e-6;
+    name=(gapy&&revP.kind!=='draw')?'가운데가 원기둥 모양으로 뚫린 회전체':k.solid;   /* 직접 그린 도형은 간격을 벌려도 제목을 바꾸지 않음 */ sub=k.fig+(revP.kind==='draw'?'':'을 ')+(gapy?'회전축에서 떨어뜨려 ':'')+'회전시킨 모양'; if(revP.kind==='draw')sub='나만의 도형을 회전시킨 모양';
+    if(S.rev.editing){name='도형 그리기'; sub='회전축 왼쪽에 평면도형을 그립니다'; hint='';}
+  }
+  $('hudName').textContent=name; $('hudSub').textContent=sub; $('hudHint').textContent=hint;
+}
+
+/* --- 선택 상자(select)를 버튼 묶음으로 보여 주기: 값은 기존 select가 그대로 보관 --- */
+function buildSeg(id){
+  const sel=$(id), box=document.createElement('div'); box.className='seg'; box.id=id+'Seg'; box.setAttribute('role','group');
+  [...sel.options].forEach(o=>{
+    const b=document.createElement('button'); b.type='button'; b.className='btn'; b.dataset.v=o.value; b.textContent=o.textContent;
+    b.addEventListener('click',()=>{ if(sel.value===o.value)return; sel.value=o.value; sel.dispatchEvent(new Event('change',{bubbles:true})); syncSegs(); });
+    box.appendChild(b);
+  });
+  sel.style.display='none'; sel.after(box);
+}
+function syncSegs(){
+  document.querySelectorAll('.seg[id$="Seg"]').forEach(box=>{
+    const sel=$(box.id.slice(0,-3)); if(!sel)return; let n=0;
+    box.querySelectorAll('.btn').forEach(b=>{
+      const o=[...sel.options].find(x=>x.value===b.dataset.v), off=!o||o.hidden;
+      b.hidden=off; b.disabled=!!(o&&o.disabled); if(!off)n++; b.setAttribute('aria-pressed',String(sel.value===b.dataset.v));
+    });
+    box.dataset.n=n;
+  });
+}
+['polyFam','platType','revFig'].forEach(buildSeg); syncSegs();
+/* --- 탭/컨트롤 동기화 --- */
+function syncCtl(){
+  document.querySelectorAll('.ctl').forEach(c=>{c.hidden=c.dataset.tab!==S.tab;});
+  $('stageVtx').hidden=$('stageNet').hidden=(S.tab==='rev');
+  document.querySelectorAll('.tabs [role="tab"]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===S.tab)));
+  $('polyReg').disabled=!S.poly.irr; $('polyFam').value=S.poly.fam; syncPolyN(); $('polyH').value=S.poly.h; $('polyR').value=S.poly.r;
+  $('platType').value=S.plat.type;
+  $('revFig').value=S.rev.source==='draw'?'draw':S.rev.fig; syncSegs(); $('revAngle').value=S.rev.angle; $('revAngleO').textContent=Math.round(S.rev.angle)+'°'; $('revGap').value=S.rev.gap;
+  syncButtons();
+}
+function syncView(){
+  const p=S.tab==='plat';
+  $('mainGrid').hidden=p&&S.step!==2; $('stepChoose').hidden=!(p&&S.step==='choose'); $('w5').hidden=!(p&&S.step===1);
+  if(p&&S.step==='choose')renderChooser();
+  if(p&&S.step===1&&W5.show)W5.show();
+  resize(); if(W5.resize)W5.resize();
+}
+function s1Done(){try{return localStorage.getItem('sl_s1_'+(user?user.sid:'guest'))==='1';}catch(e){return false;}}
+function markS1Done(){try{localStorage.setItem('sl_s1_'+(user?user.sid:'guest'),'1');}catch(e){}}
+function goStep(n){S.step=n; syncView(); applyLocks();}
+function renderChooser(){
+  const c1=$('card1'), c2=$('card2'), d=s1Done();
+  const open1=!locks.plat||!!teacher, open2=open1&&(d||!!teacher);
+  c1.disabled=!open1; c2.disabled=!open2;
+  $('st1').textContent=d?'✔ 완료':'';
+  $('st2').textContent=open2?'':'🔒 STEP 1을 마치면 열립니다';
+}
+$('card1').addEventListener('click',()=>{if(!$('card1').disabled)goStep(1);});
+$('card2').addEventListener('click',()=>{if(!$('card2').disabled)goStep(2);});
+document.querySelectorAll('.js-backstep').forEach(b=>b.addEventListener('click',()=>goStep('choose')));
+function selectTab(t){
+  if(S.tab===t){ if(t==='plat'&&S.step!=='choose')goStep('choose'); return; }
+  S.step='choose';
+  S.tab=t; S.mode='none'; S.fold=0; S.foldTarget=0; S.split=0; S.splitAmt=0; S.playing=false; S.auto=false; S.rev.editing=false;
+  showDraw(false); rebuildSolid(); syncCtl(); renderUnder(); renderQuiz(); updateHud(); resetView(); syncView();
+}
+document.querySelectorAll('.tabs [role="tab"]').forEach(b=>b.addEventListener('click',()=>selectTab(b.dataset.tab)));
+
+function afterShapeChange(){
+  const keepSec=S.mode==='section';
+  rebuildSolid();
+  if(keepSec){const [lo,hi]=secRange(); S.secPos=clamp(S.secPos,lo,hi); S.splitAmt=S.split?S.splitAmt:0; applyClip(); updateSectionView(); renderUnder();}
+  else if(S.mode==='net'){renderUnder(); if(S.fold>0.98)flatView();}
+  syncCtl(); renderQuiz(); updateHud();
+}
+/* 다면체 */
+$('polyFam').addEventListener('change',e=>{S.poly.fam=e.target.value; afterShapeChange();});
+function syncPolyN(){$('polyVal').textContent=S.poly.n+'개'; $('polyMinus').disabled=S.poly.n<=3; $('polyPlus').disabled=S.poly.n>=10;}
+function setPolyN(v){v=clamp(Math.round(+v||3),3,10); if(v===S.poly.n){syncPolyN(); return;} S.poly.n=v; if(S.poly.irr){let b=null; for(let i=0;i<20&&!b;i++)b=randomBase(v); S.poly.irr=b;} syncPolyN(); afterShapeChange();}
+$('polyRand').addEventListener('click',()=>{let b=null; for(let i=0;i<20&&!b;i++)b=randomBase(S.poly.n); if(b){S.poly.irr=b; afterShapeChange();}});
+$('polyReg').addEventListener('click',()=>{S.poly.irr=null; afterShapeChange();});
+$('polyMinus').addEventListener('click',()=>setPolyN(S.poly.n-1));
+$('polyPlus').addEventListener('click',()=>setPolyN(S.poly.n+1));
+$('polyH').addEventListener('input',e=>{S.poly.h=+e.target.value; afterShapeChange();});
+$('polyR').addEventListener('input',e=>{S.poly.r=+e.target.value; afterShapeChange();});
+/* 정다면체 */
+$('platType').addEventListener('change',e=>{
+  const t=e.target.value; S.plat.type=t; S.plat.n={tetra:4,cube:6,octa:8,dodeca:12,icosa:20}[t]; S.plat.valid=true;
+  afterShapeChange();
+});
+function resetAll(){
+  const key0=curQuiz&&curQuiz.key;
+  S.mode='none'; S.fold=0; S.foldTarget=0; S.split=0; S.splitAmt=0; S.playing=false; S.auto=false; S.vtx=false; S.rev.editing=false; showDraw(false);
+  if(S.tab==='poly'){S.poly.h=1.6; S.poly.r=1; S.poly.irr=null;}   /* 도형의 종류·밑면의 변의 수는 유지하고 지금 도형만 처음 상태로(밑면은 정다각형) */
+  else if(S.tab==='plat'){}
+  else{S.rev.angle=0; S.rev.gap=0; if(!S.rev.drawn&&S.rev.source==='draw'){S.rev.source='preset'; S.rev.fig='rect'; $('revDrawOpt').disabled=true;}}
+  rebuildSolid(); syncCtl(); renderUnder(); updateHud(); resetView();
+  if(curQuiz&&curQuiz.key!==key0)renderQuiz(); else { const q=quizSpec(); if(q.key!==key0)renderQuiz(); }
+}
+$('resetAll').addEventListener('click',resetAll);
+/* 공통 버튼 */
+document.querySelectorAll('.js-sec').forEach(b=>b.addEventListener('click',()=>toggleSec(b.dataset.sec)));
+document.querySelectorAll('.js-net').forEach(b=>b.addEventListener('click',()=>{ if(!net)return; setMode(S.mode==='net'?'none':'net'); }));
+document.querySelectorAll('.js-reset').forEach(b=>b.addEventListener('click',()=>resetView()));
+document.querySelectorAll('.js-vtx').forEach(b=>b.addEventListener('click',()=>{S.vtx=!S.vtx; [gA,gB].forEach(g=>g.traverse(o=>{if(o.userData.vtx)o.visible=S.vtx;})); syncButtons();}));
+document.querySelectorAll('.js-auto').forEach(b=>b.addEventListener('click',()=>{
+  if(S.tab==='rev'){
+    if(S.rev.editing)return;
+    if(!S.playing){ if(S.mode==='section')setMode('none'); if(S.rev.angle>=360){S.rev.angle=0;} S.playing=true; } else S.playing=false;
+  } else S.auto=!S.auto;
+  syncButtons();
+}));
+/* 회전체 */
+$('revFig').addEventListener('change',e=>{
+  if(e.target.value==='draw'){if(!S.rev.drawn){syncCtl(); return;} S.rev.source='draw';}
+  else{S.rev.fig=e.target.value; S.rev.source='preset';}
+  S.rev.editing=false; showDraw(false); S.playing=false;
+  S.rev.angle=0; S.rev.gap=0; S.mode='none'; S.split=0; S.splitAmt=0; S.foldTarget=0;
+  afterShapeChange(); renderUnder(); resetView();
+});
+$('revAngle').addEventListener('input',e=>{S.rev.angle=+e.target.value; S.playing=false; $('revAngleO').textContent=Math.round(S.rev.angle)+'°'; if(S.mode==='section')S.mode='none',S.split=0,S.splitAmt=0; rebuildSolid(); renderUnder(); syncButtons();});
+$('revGap').addEventListener('input',e=>{S.rev.gap=+e.target.value; const keep=S.mode==='section'; rebuildSolid(); if(keep){const [lo,hi]=secRange(); S.secPos=clamp(S.secPos,lo,hi); applyClip(); renderUnder();} updateHud();});
+$('revContain').addEventListener('click',()=>{
+  if(S.rev.source==='draw'&&!S.rev.drawn)return;
+  if(S.mode!=='section'){S.secKind='par'; setMode('section');}
+  S.secKind='par'; S.secPos=0; renderUnder(); syncButtons();
+});
+$('revDraw').addEventListener('click',()=>{ startDraw(); });
+$('revDrawDel').addEventListener('click',()=>{
+  if(!S.rev.drawn)return;
+  const wasDraw=S.rev.source==='draw';
+  S.rev.drawn=null; strokes=[]; curStroke=null; $('revDrawOpt').disabled=true;
+  if(wasDraw){S.rev.source='preset'; S.rev.fig='rect'; S.rev.angle=0; S.rev.gap=0; S.playing=false; S.mode='none'; S.split=0; S.splitAmt=0; S.foldTarget=0;}
+  if(S.rev.editing){S.rev.editing=false; showDraw(false);}
+  afterShapeChange(); renderUnder(); resetView();
+});
+
+/* --- 아래 영역 이벤트 위임 --- */
+$('under').addEventListener('input',e=>{
+  if(e.target.id==='foldR'){S.netLoop=false; const np=$('netPlay'); if(np)np.textContent='자동재생'; S.fold=+e.target.value/100; S.foldTarget=S.fold; S.flyFlat=false; applyFold(); $('foldO').textContent=Math.round(S.fold*100)+'%';}
+  if(e.target.id==='secR'){S.secPos=snapSecPos(+e.target.value); e.target.value=S.secPos; updateSectionView(); syncButtons();}
+  if(e.target.id==='secRot'){
+    S.secRot=snapSecRot(+e.target.value); e.target.value=S.secRot; $('secRotO').textContent=Math.round(S.secRot)+'°';
+    const [lo,hi]=secRange(); S.secPos=clamp(S.secPos,lo,hi); const r=$('secR'); if(r){r.min=lo.toFixed(3); r.max=hi.toFixed(3); r.value=S.secPos;}
+    applyClip(); updateSectionView(); syncButtons();
+  }
+});
+$('under').addEventListener('click',e=>{
+  const id=e.target.id;
+  if(id==='splitBtn'){S.split=S.split?0:1; applyClip(); const b=$('splitBtn'); b.textContent=S.split?'다시 합치기':'단면으로 쪼개기'; b.classList.toggle('on',!!S.split);}
+  if(id==='netFront'){S.flyFlat=false; flatView();}
+  if(id==='netPlay'&&S.netLoop){S.netLoop=false; S.foldTarget=S.fold; $('netPlay').textContent='자동재생';}
+  else if(id==='netPlay'){S.netLoop=true; S.netWait=0; $('netPlay').textContent='자동재생 멈추기'; S.fold=0; applyFold(); S.foldTarget=1; S.flyFlat=false; S.foldSpeed=1/4; flyTo({az:0.75,pol:1.1,r:13.5,tx:0,ty:0,tz:0}); const fr=$('foldR'); if(fr){fr.value=0; $('foldO').textContent='0%';}}
+  if(id==='dUndo'){strokes.pop(); drawRedraw();}
+  if(id==='dClear'){strokes=[]; drawRedraw();}
+  if(id==='dGo'){finishDraw();}
+  if(id==='dAgain'){startDraw();}
+});
+
+/* --- 카메라 --- */
+const cam={az:0.75,pol:1.1,r:11.3,target:V(0,0,0)}; let fly=null, dragging=false;
+const KF=Math.tan(12*Math.PI/180)/Math.tan(7*Math.PI/180);
+function placeCamera(){
+  const rr=cam.r*KF;
+  camera.position.set(cam.target.x+rr*Math.sin(cam.pol)*Math.sin(cam.az),cam.target.y+rr*Math.cos(cam.pol),cam.target.z+rr*Math.sin(cam.pol)*Math.cos(cam.az));
+  camera.lookAt(cam.target);
+}
+function flyTo(to){fly={t:0,from:{az:cam.az,pol:cam.pol,r:cam.r,tx:cam.target.x,ty:cam.target.y,tz:cam.target.z},to};}
+function resetView(angled){const fr=S.tab==='rev'&&!angled; flyTo({az:fr?Math.PI:0.75,pol:fr?1.2:1.1,r:S.tab==='rev'?(7.2+Math.max(0,((revP&&revP.yMax-revP.yMin)||2)-2)*1.8+((revP&&revP.rMax)||1)*0.6-0.6)*1.7:11.3,tx:0,ty:(S.tab==='rev'&&revP)?(revP.yMax+revP.yMin)/2:0,tz:0});}
+function flatView(){
+  if(!net)return; const L=net.layout, n=L.normal; const aspect=camera.aspect||1.4;
+  const rr=L.radius*1.12/(Math.tan(THREE.MathUtils.degToRad(12))*Math.min(1,aspect));
+  flyTo({az:Math.atan2(n.x,n.z),pol:clamp(Math.acos(clamp(n.y,-1,1)),0.03,Math.PI-0.03),r:Math.max(7.6,rr),tx:L.center.x,ty:L.center.y,tz:L.center.z});
+}
+const pointers=new Map(); let pinch0=0, r0=0;
+const pdist=()=>{const a=[...pointers.values()]; return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;};
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId); pointers.set(e.pointerId,{x:e.clientX,y:e.clientY}); dragging=true; fly=null; S.flyFlat=false; if(pointers.size===2){pinch0=pdist();r0=cam.r;}});
+cv.addEventListener('pointermove',e=>{
+  const p=pointers.get(e.pointerId); if(!p)return; const dx=e.clientX-p.x,dy=e.clientY-p.y; p.x=e.clientX;p.y=e.clientY;
+  if(pointers.size===1){cam.az-=dx*0.008; cam.pol=clamp(cam.pol-dy*0.008,0.03,Math.PI-0.03);}
+  else if(pointers.size===2){cam.r=clamp(r0*pinch0/pdist(),4,100);}
+});
+const endPtr=e=>{pointers.delete(e.pointerId); dragging=pointers.size>0;};
+cv.addEventListener('pointerup',endPtr); cv.addEventListener('pointercancel',endPtr);
+cv.addEventListener('wheel',e=>{e.preventDefault(); fly=null; cam.r=clamp(cam.r*Math.exp(e.deltaY*0.0012),4,100);},{passive:false});
+
+/* --- 직접 그리기 --- */
+const dc=$('draw'), dctx=dc.getContext('2d'); let strokes=[], curStroke=null;
+function dGeom(){const W=dc.clientWidth,H=dc.clientHeight; return {W,H,ax:W*0.58,cy:H/2,ppu:H/4.6};}
+function sizeDraw(){
+  const dpr=Math.min(window.devicePixelRatio||1,2), W=dc.clientWidth, H=dc.clientHeight; if(!W||!H)return;
+  dc.width=Math.round(W*dpr); dc.height=Math.round(H*dpr); dctx.setTransform(dpr,0,0,dpr,0,0); drawRedraw();
+}
+function cssv(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+function allPts(){const a=[]; strokes.forEach(s=>s.forEach(p=>a.push(p))); if(curStroke)curStroke.forEach(p=>a.push(p)); return a;}
+function drawRedraw(){
+  const {W,H,ax,cy,ppu}=dGeom(); if(!W)return;
+  dctx.clearRect(0,0,W,H);
+  dctx.fillStyle=cssv('--stage')||'#F8FAFD'; dctx.fillRect(0,0,W,H);
+  dctx.strokeStyle=cssv('--line'); dctx.lineWidth=1; dctx.beginPath();
+  for(let x=ax;x>0;x-=ppu/2){dctx.moveTo(x,0);dctx.lineTo(x,H);} for(let y=cy;y>0;y-=ppu/2){dctx.moveTo(0,y);dctx.lineTo(ax,y);} for(let y=cy;y<H;y+=ppu/2){dctx.moveTo(0,y);dctx.lineTo(ax,y);}
+  dctx.stroke();
+  dctx.fillStyle=cssv('--panel2'); dctx.globalAlpha=0.75; dctx.fillRect(ax,0,W-ax,H); dctx.globalAlpha=1;
+  dctx.fillStyle=cssv('--muted'); dctx.font='500 13px "Noto Sans KR",sans-serif'; dctx.textAlign='center'; dctx.fillText('회전축 오른쪽에는',ax+(W-ax)/2,H/2-10); dctx.fillText('그릴 수 없습니다',ax+(W-ax)/2,H/2+10);
+  dctx.strokeStyle=cssv('--edge'); dctx.lineWidth=3; dctx.beginPath(); dctx.moveTo(ax,18); dctx.lineTo(ax,H-18); dctx.stroke();
+  dctx.fillStyle=cssv('--ink'); dctx.font='italic 700 22px "Times New Roman",serif'; dctx.textAlign='left'; dctx.fillText('l',ax+8,30);
+  const pts=allPts();
+  if(pts.length){
+    if(pts.length>=3){dctx.beginPath(); pts.forEach((p,i)=>i?dctx.lineTo(p.x,p.y):dctx.moveTo(p.x,p.y)); dctx.closePath(); dctx.fillStyle='rgba(43,108,176,.22)'; dctx.fill();}
+    dctx.strokeStyle='#2B6CB0'; dctx.lineWidth=3; dctx.lineJoin='round'; dctx.beginPath(); pts.forEach((p,i)=>i?dctx.lineTo(p.x,p.y):dctx.moveTo(p.x,p.y)); dctx.stroke();
+    if(pts.length>=3){dctx.setLineDash([6,6]); dctx.lineWidth=2; dctx.beginPath(); dctx.moveTo(pts[pts.length-1].x,pts[pts.length-1].y); dctx.lineTo(pts[0].x,pts[0].y); dctx.stroke(); dctx.setLineDash([]);}
+    dctx.fillStyle='#2B6CB0'; strokes.forEach(s=>{ if(s.length<=2)s.forEach(p=>{dctx.beginPath();dctx.arc(p.x,p.y,5,0,TAU);dctx.fill();}); });
+  }
+}
+function dPos(e){const r=dc.getBoundingClientRect(); const g=dGeom(); return {x:Math.min(e.clientX-r.left,g.ax),y:clamp(e.clientY-r.top,0,r.height)};}
+dc.addEventListener('pointerdown',e=>{dc.setPointerCapture(e.pointerId); curStroke=[dPos(e)]; drawRedraw();});
+dc.addEventListener('pointermove',e=>{ if(!curStroke)return; const p=dPos(e), l=curStroke[curStroke.length-1]; if(Math.hypot(p.x-l.x,p.y-l.y)>5){curStroke.push(p); drawRedraw();} });
+const dEnd=()=>{ if(!curStroke)return; const s=curStroke; curStroke=null; if(s.length>0)strokes.push(s); drawRedraw(); };
+dc.addEventListener('pointerup',dEnd); dc.addEventListener('pointercancel',dEnd);
+function rdp(pts,eps){
+  if(pts.length<3)return pts;
+  const a=pts[0],b=pts[pts.length-1]; let md=0,mi=0; const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1;
+  for(let i=1;i<pts.length-1;i++){const d=Math.abs((pts[i].x-a.x)*dy-(pts[i].y-a.y)*dx)/L; if(d>md){md=d;mi=i;}}
+  if(md>eps){const l=rdp(pts.slice(0,mi+1),eps), r=rdp(pts.slice(mi),eps); return l.slice(0,-1).concat(r);}
+  return [a,b];
+}
+function segX(p1,p2,p3,p4){
+  const d=(p2[0]-p1[0])*(p4[1]-p3[1])-(p2[1]-p1[1])*(p4[0]-p3[0]); if(Math.abs(d)<1e-12)return false;
+  const t=((p3[0]-p1[0])*(p4[1]-p3[1])-(p3[1]-p1[1])*(p4[0]-p3[0]))/d, u=((p3[0]-p1[0])*(p2[1]-p1[1])-(p3[1]-p1[1])*(p2[0]-p1[0]))/d;
+  return t>1e-6&&t<1-1e-6&&u>1e-6&&u<1-1e-6;
+}
+function showDraw(on){dc.hidden=!on; cv.style.visibility=on?'hidden':'visible'; if(on)sizeDraw();}
+function startDraw(){
+  S.playing=false; S.auto=false; if(S.mode!=='none')S.mode='none',S.split=0,S.splitAmt=0;
+  S.rev.editing=true; strokes=[]; curStroke=null; showDraw(true); rebuildSolid(); renderUnder(); syncButtons(); updateHud();
+}
+function finishDraw(){
+  const msg=$('dMsg'), {ax,cy,ppu}=dGeom();
+  const raw=allPts(); if(raw.length<3){msg.textContent='평면도형을 그리십시오. (점 3개 이상)'; return;}
+  let pts; { let fi=0,fd=0; raw.forEach((q,i)=>{const d=Math.hypot(q.x-raw[0].x,q.y-raw[0].y); if(d>fd){fd=d;fi=i;}});
+    if(fd<12){pts=raw;} else {const A=rdp(raw.slice(0,fi+1),4), B=rdp(raw.slice(fi).concat([raw[0]]),4); pts=A.slice(0,-1).concat(B.slice(0,-1));} } pts=pts.map(p=>({x:Math.abs(p.x-ax)<9?ax:p.x,y:p.y}));
+  const out=[]; pts.forEach(p=>{const l=out[out.length-1]; if(!l||Math.hypot(p.x-l.x,p.y-l.y)>3)out.push(p);});
+  if(out.length>2&&Math.hypot(out[0].x-out[out.length-1].x,out[0].y-out[out.length-1].y)<=3)out.pop();
+  if(out.length<3){msg.textContent='도형이 너무 작습니다. 더 크게 그리십시오.'; return;}
+  const poly=out.map(p=>[(ax-p.x)/ppu,(cy-p.y)/ppu]);
+  let area=0; for(let i=0;i<poly.length;i++){const a=poly[i],b=poly[(i+1)%poly.length]; area+=a[0]*b[1]-b[0]*a[1];}
+  if(Math.abs(area)/2<0.02){msg.textContent='도형의 넓이가 너무 작습니다. 선이 한 줄이 되지 않게 그리십시오.'; return;}
+  for(let i=0;i<poly.length;i++)for(let j=i+1;j<poly.length;j++){
+    if(Math.abs(i-j)<2||(i===0&&j===poly.length-1))continue;
+    if(segX(poly[i],poly[(i+1)%poly.length],poly[j],poly[(j+1)%poly.length])){msg.textContent='선이 서로 겹쳤습니다. 겹치지 않게 다시 그리십시오.'; return;}
+  }
+  S.rev.drawn=poly; S.rev.source='draw'; S.rev.editing=false; showDraw(false);
+  $('revDrawOpt').disabled=false;
+  S.rev.angle=0; S.playing=false; rebuildSolid(); syncCtl(); renderUnder(); updateHud(); resetView();
+}
+new ResizeObserver(()=>{ if(!dc.hidden)sizeDraw(); }).observe($('stage'));
+
+/* --- 크기·테마 --- */
+function resize(){
+  const st=$('stage'), w=st.clientWidth, h=st.clientHeight; if(!w||!h)return;
+  renderer.setSize(w,h,false); { const v=new THREE.Vector2(); renderer.getDrawingBufferSize(v); HULL_U.uRes.value.copy(v); } camera.aspect=w/h;
+  if(w<640)camera.setViewOffset(w,h,0,-34,w,h); else{camera.clearViewOffset(); camera.updateProjectionMatrix();}   /* 모바일: 위쪽 제목 글자와 축 기호가 겹치지 않게 장면을 조금 아래로 */
+}
+new ResizeObserver(resize).observe($('stage')); window.addEventListener('resize',resize);
+function vtxDark(edge){const c=/^#[def]/i.test(edge)?0x8FB0FF:0x1B2A6B; setA.vtx.color.setHex(c); setB.vtx.color.setHex(c);}
+function applyTheme(){
+  const edge=cssv('--edge')||'#17212B';
+  [setA,setB].forEach(m=>{m.edge.color.set(edge); m.dash.color.set(edge); m.gen.color.set(edge); m.mark.color.set(edge); m.hull.color.set(edge); });
+  vtxDark(edge); axisMat.color.set(edge); rodMat.color.set(edge); rodDash.color.set(edge); capBandMat.color.set(edge); capMarkMat.color.set(edge);
+  if(S.tab==='rev'&&revP)buildAxis(revP);
+  if(!dc.hidden)drawRedraw();
+  if(W5.theme)W5.theme();
+}
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',applyTheme);}catch(e){}
+new MutationObserver(applyTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+/* ===================== 로그인 · 퀴즈 · 시트 ===================== */
+let user=null; try{user=JSON.parse(localStorage.getItem('sl_user')||'null');}catch(e){}
+let subs={}, drafts={};
+function loadSubs(){try{subs=JSON.parse(localStorage.getItem('sl_sub_'+(user?user.sid:'guest'))||'{}');}catch(e){subs={};} try{drafts=JSON.parse(localStorage.getItem('sl_draft_'+(user?user.sid:'guest'))||'{}');}catch(e){drafts={};}}
+function saveDrafts(){try{localStorage.setItem('sl_draft_'+(user?user.sid:'guest'),JSON.stringify(drafts));}catch(e){}}
+function saveSubs(){try{localStorage.setItem('sl_sub_'+(user?user.sid:'guest'),JSON.stringify(subs));}catch(e){}}
+function syncLogin(){
+  $('loginForm').hidden=!!user; $('loginInfo').hidden=!user;
+  if(user)$('who').textContent=user.sid+' '+user.name;
+}
+function loginMsg(t){const m=$('loginMsg'); m.textContent=t||''; m.hidden=!t;}
+['sid','sname','scode'].forEach(id=>$(id).addEventListener('input',()=>loginMsg('')));
+$('loginForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const sid=$('sid').value.trim(), name=$('sname').value.trim(), code=$('scode').value.trim().toLowerCase();
+  if(!sid||!name||!code){(!sid?$('sid'):!name?$('sname'):$('scode')).focus(); loginMsg('학번, 이름, 코드번호를 모두 입력하십시오.'); return;}
+  const b=$('loginBtn'); 
+  if(SHEET_URL){
+    b.disabled=true; b.textContent='확인 중…'; let r=null, fail=false;
+    try{r=await lockFetch({q:'action=login&sid='+encodeURIComponent(sid)+'&name='+encodeURIComponent(name)+'&code='+encodeURIComponent(code)});}catch(err){fail=true;}
+    b.disabled=false; b.textContent='로그인';
+    if(fail){loginMsg('연결하지 못했습니다. 인터넷 연결을 확인하고 다시 눌러 주십시오.'); return;}
+    if(!r||!r.ok){loginMsg('학번, 이름, 코드번호를 다시 확인하십시오.'); return;}
+  }
+  loginMsg(''); user={sid,name,code}; try{localStorage.setItem('sl_user',JSON.stringify(user));}catch(err){}
+  loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();
+});
+$('logoutBtn').addEventListener('click',()=>{user=null; try{localStorage.removeItem('sl_user');}catch(e){} $('sid').value=''; $('sname').value=''; $('scode').value=''; loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();});
+
+const BASE_OPTS=['삼각형','사각형','오각형','육각형','칠각형','팔각형','구각형','십각형'];
+const SIDE_OPTS=['삼각형','직사각형','사다리꼴','평행사변형','정사각형'];
+const PLATFACE_OPTS=['정삼각형','정사각형','정오각형','정육각형'];
+function eqOK(str,f){
+  let t=String(str||'').toLowerCase().replace(/\s/g,'').replace(/[×x·]/g,'*').replace(/＋/g,'+').replace(/[−–]/g,'-');
+  if(!t||!/^[0-9n+\-*()]+$/.test(t))return false;
+  t=t.replace(/(\d|\))(?=n|\()/g,'$1*').replace(/n(?=\d|n|\()/g,'n*');
+  try{return [3,4,5,8,13].every(n=>Math.abs(Function('n','return ('+t+')')(n)-f(n))<1e-9);}catch(e){return false;}
+}
+function quizSpec(){
+  if(S.tab==='poly'){
+    const fam=S.poly.fam, FN={prism:'각기둥',pyramid:'각뿔',frustum:'각뿔대'}[fam];
+    const FM={prism:[n=>n+2,n=>3*n,n=>2*n],pyramid:[n=>n+1,n=>2*n,n=>n+1],frustum:[n=>n+2,n=>3*n,n=>2*n]}[fam];
+    const NS=[3,4,5], NM={3:'삼',4:'사',5:'오'};
+    const qs=[{t:'txt',ph:'기준 작성하기'}]; for(let i=0;i<9;i++)qs.push(i%3===0?{t:'txt1',ph:'□면체'}:{t:'num'}); for(let i=0;i<3;i++)qs.push({t:'txt1',ph:'n으로 나타내기'}); qs.push({t:'txt'});
+    const groups=[
+      {q:'다면체는 무엇을 기준으로 사면체, 오면체, 육면체, … 라고 하는지 작성해 봅시다.',kind:'one',at:0},
+      {q:'아래 입체도형이 몇 면체인지와 모서리, 꼭짓점의 개수를 각각 구해 표로 정리해 봅시다.',kind:'table',cols:['몇 면체','모서리','꼭짓점'],rows:NS.map(n=>NM[n]+FN),at:1},
+      {q:`n${FN}의 면, 모서리, 꼭짓점의 개수를 n으로 나타내 봅시다.`,kind:'rows',labels:['면의 개수','모서리의 개수','꼭짓점의 개수'],at:10},
+      {q:`면, 모서리, 꼭짓점의 개수 외에 탐구를 통해 발견한 ${FN}의 성질을 정리해 봅시다.`,kind:'one',at:13}];
+    const MN=['','','','','사','오','육','칠','팔','구','십','십일','십이'];
+    const mn=v=>{const t=String(v||'').replace(/\s/g,'').replace(/면체$/,''); const i=MN.indexOf(t); return i>0?i:(/^\d+$/.test(t)?+t:-1);};
+    const grade=a=>{const r=[];
+      NS.forEach((n,i)=>FM.forEach((f,j)=>{const v=a[1+i*3+j]; r.push((j===0?(mn(v)===f(n)):String(+v)===String(f(n)))?'O':'X');}));
+      FM.forEach((f,j)=>r.push(eqOK(a[10+j],f)?'O':'X')); return r;};
+    const FS={prism:['n+2','3n','2n'],pyramid:['n+1','2n','n+1'],frustum:['n+2','3n','2n']}[fam];
+    const TX={prism:'두 밑면은 서로 평행하고 합동인 다각형이며, 옆면은 모두 직사각형이다.',pyramid:'밑면은 다각형이고, 옆면은 모두 삼각형이며 한 점(각뿔의 꼭짓점)에서 만난다.',frustum:'두 밑면은 서로 평행하고, 옆면은 모두 사다리꼴이다.'}[fam];
+    const model=['다면체는 면의 개수를 기준으로 이름을 붙인다. (면이 4개이면 사면체, 5개이면 오면체, 6개이면 육면체)']; NS.forEach(n=>FM.forEach((f,j)=>model.push(j===0?MN[f(n)]+'면체':String(f(n))))); FS.forEach(x=>model.push(x)); model.push(TX);
+    return {key:'poly:'+fam, tab:'다면체', shape:FN, n:'', qs, groups, grade, model, shared:{0:'poly:common'}, head:`<b>${FN}</b> 탐구내용 정리`};
+  }
+  if(S.tab==='plat'){
+    const R5=[['정사면체','정삼각형',3],['정육면체','정사각형',3],['정팔면체','정삼각형',4],['정십이면체','정오각형',3],['정이십면체','정삼각형',5]];
+    const qs=[]; R5.forEach(()=>{qs.push({t:'txt1',ph:'이름'}); qs.push({t:'num'});});
+    const norm=x=>String(x||'').replace(/\s/g,'').replace(/^정/,'');
+    const grade=a=>{const r=[]; R5.forEach((x,i)=>{r.push(norm(a[i*2])===norm(x[1])?'O':'X'); r.push(String(+a[i*2+1])===String(x[2])?'O':'X');}); return r;};
+    const model=[]; R5.forEach(x=>{model.push(x[1]); model.push(String(x[2]));});
+    return {key:'plat', tab:'정다면체', shape:'정다면체', n:'', qs, grade, model, head:'<b>정다면체</b> 탐구내용 정리',
+      groups:[{q:'정다면체의 면의 모양과 한 꼭짓점에 모인 면의 개수를 표로 정리해 봅시다.',kind:'table',cols:['면의 모양','모인 면의 개수'],rows:R5.map(x=>x[0]),at:0}]};
+  }
+  const RV=[['직사각형','원기둥'],['직각삼각형','원뿔'],['반원','구'],['직각사다리꼴','원뿔대']];
+  const qs=[]; RV.forEach(()=>qs.push({t:'txt1',ph:'이름'})); qs.push({t:'txt',ph:'단면의 모양 작성하기'}); qs.push({t:'txt',ph:'새롭게 알게 된 성질 정리하기'});
+  const grade=a=>RV.map((x,i)=>String(a[i]||'').replace(/\s/g,'')===x[1]?'O':'X');
+  const model=[...RV.map(x=>x[1]),'회전축에 수직인 평면으로 자른 단면은 모두 원이다. 원기둥은 자르는 위치에 관계없이 원의 크기가 같고, 원뿔, 원뿔대, 구는 자르는 위치에 따라 원의 크기가 다르다. (회전축과 평면도형이 떨어져 있으면 가운데가 뚫린 도넛 모양이다.)','회전축을 포함하는 평면으로 자른 단면은 모두 합동이고, 회전축을 대칭축으로 하는 선대칭도형이다.'];
+  return {key:'rev:v2', tab:'회전체', shape:'회전체', n:'', head:'<b>회전체</b> 탐구내용 정리', qs, grade, model,
+    groups:[{q:'다음 평면도형을 회전시킬 때 만들어지는 회전체의 이름을 표로 정리해 봅시다.',kind:'table',cols:['회전체'],rows:RV.map(x=>x[0]),at:0},
+      {q:'회전축에 수직인 평면으로 자를 때 생기는 단면의 모양을 작성해 봅시다.',kind:'one',at:4},
+      {q:'회전축을 포함하는 평면으로 자를 때 생기는 단면에 대하여 탐구를 통해 발견한 성질을 정리해 봅시다.',kind:'one',at:5}]};
+}
+let curQuiz=null;
+function renderQuiz(){
+  const spec=quizSpec(); curQuiz=spec; const box=$('quizBody');
+  const tg=$('quizTag'); tg.textContent=spec.shape||''; tg.hidden=!spec.shape;
+  if(spec.disabled){box.innerHTML=`<p class="msg warn">${spec.msg}</p>`; return;}
+  const T=!!(teacher&&spec.model), saved=T?null:subs[spec.key], dr=drafts[spec.key]||(drafts[spec.key]=[]);
+  const lock=!!(saved&&!saved.open), dis=lock?'disabled':'';
+  const inp=i=>{const q=spec.qs[i], shk=spec.shared&&spec.shared[i], v=String(T?spec.model[i]:(lock?saved.answers[i]:(shk&&drafts[shk]!==undefined?drafts[shk]:(dr[i]!==undefined?dr[i]:(saved?saved.answers[i]:'')))));
+    if(q.t==='num')return `<input type="number" inputmode="numeric" min="0" id="qa${i}" value="${v}" placeholder="개수" ${dis}>`;
+    if(q.t==='txt1')return `<input type="text" id="qa${i}" value="${v.replace(/"/g,'&quot;')}" placeholder="${q.ph||'직접 입력합니다'}" autocomplete="off" ${dis}>`;
+    return `<textarea id="qa${i}" placeholder="${q.ph||'새롭게 알게 된 성질 정리하기'}" ${dis}>${v.replace(/</g,'&lt;')}</textarea>`;};
+  let qh;
+  if(spec.groups){
+    qh=spec.groups.map(g=>{
+      let body='';
+      if(g.kind==='table')body=`<table class="qtab"><tr><th></th>${g.cols.map(c=>`<th>${c}</th>`).join('')}</tr>`+g.rows.map((r,ri)=>`<tr><th class="r">${r}</th>${g.cols.map((c,ci)=>`<td>${inp(g.at+ri*g.cols.length+ci)}</td>`).join('')}</tr>`).join('')+'</table>';
+      else if(g.kind==='rows')body=g.labels.map((l,j)=>`<div class="qrow"><label for="qa${g.at+j}">${l}</label>${inp(g.at+j)}</div>`).join('');
+      else body=inp(g.at);
+      return `<li><label>${g.q}</label>${body}</li>`;}).join('');
+  }else{
+    qh=spec.qs.map((q,i)=>`<li><label for="qa${i}">${q.q}</label>${inp(i)}</li>`).join('');
+  }
+  box.innerHTML=`<ol>${qh}</ol>
+    <div class="acts"><button class="btn" id="qSave">임시저장</button><button class="btn ${lock?'':'primary'}" id="qDone">${lock?'수정하기':'제출하기'}</button></div>
+    <div class="qmsg ok" id="qMsg">${T?'교사용 화면입니다. 모범답안이 채워져 있습니다.':saved?(lock?saved.time+' 제출을 완료했습니다. 수정 후 제출하기를 다시 누를 수 있습니다.':'수정할 수 있습니다. [제출하기]를 다시 눌러야 선생님께 전달됩니다.'):''}</div>`;
+  spec.qs.forEach((q,i)=>{const el=$('qa'+i); if(el)el.addEventListener('input',()=>{if(!T){dr[i]=el.value; drafts[spec.key]=dr; const k=spec.shared&&spec.shared[i]; if(k)drafts[k]=el.value; saveDrafts(); }});});
+  $('qSave').addEventListener('click',saveQuiz); $('qDone').addEventListener('click',()=>{const sv=subs[spec.key]; if(!teacher&&sv&&!sv.open)rewriteQuiz(); else submitQuiz();});
+}
+function setQMsg(t,cls){const m=$('qMsg'); if(!m)return; m.textContent=t; m.className='qmsg '+(cls==='warn'?'warn':'ok');}
+function saveQuiz(){
+  const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 저장하지 않습니다.','warn'); return;}
+  saveDrafts(); const b=$('qSave'); b.textContent='저장됨 ✓'; b.classList.add('on'); setTimeout(()=>{const x=$('qSave'); if(x){x.textContent='임시저장'; x.classList.remove('on');}},1500);
+  setQMsg('임시저장을 완료했습니다. [제출하기]를 눌러야 선생님께 전달됩니다.','ok');
+}
+function rewriteQuiz(){
+  const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 고칠 수 없습니다. 교사용 나가기 후 이용하십시오.','warn'); return;}
+  const sv=subs[spec.key]; if(!sv)return; sv.open=true; saveSubs();
+  spec.qs.forEach((q,i)=>{const el=$('qa'+i); if(el)el.disabled=false;}); const bd=$('qDone'); bd.textContent='제출하기'; bd.classList.add('primary');
+  setQMsg('수정할 수 있습니다. [제출하기]를 다시 눌러야 선생님께 전달됩니다.','');
+}
+async function submitQuiz(){
+  const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 제출하지 않습니다.','warn'); return;}
+  if(!user){setQMsg('먼저 위에서 학번과 이름을 입력해 로그인하십시오.','warn'); return;}
+  const answers=spec.qs.map((q,i)=>String($('qa'+i).value).trim());
+  const blank=answers.findIndex(a=>!a); if(blank>=0){setQMsg('빈칸이 있습니다. 모든 칸을 채우면 제출할 수 있습니다.','warn'); const el=$('qa'+blank); if(el)el.focus(); return;}
+  const correct=spec.grade?spec.grade(answers):spec.correct?answers.map((a,i)=>(String(+a)===spec.correct[i]||a.replace(/\s/g,'')===spec.correct[i])?'O':'X'):[];
+  const payload={time:new Date().toLocaleString('ko-KR'),sid:user.sid,name:user.name,code:user.code||'',tab:spec.tab,shape:spec.shape,n:spec.n,answers,correct,score:correct.filter(c=>c==='O').length,total:correct.length};
+  $('qDone').disabled=true; setQMsg('제출하는 중입니다…','');
+  let res='local';
+  if(SHEET_URL){try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); res='sent';}catch(e){res='fail';}}
+  if(res==='fail'){$('qDone').disabled=false; setQMsg('전송에 실패했습니다. 인터넷 연결을 확인하고 [제출하기]를 다시 누르십시오.','warn'); return;}
+  subs[spec.key]={answers,time:payload.time}; saveSubs(); drafts[spec.key]=answers.slice(); if(spec.shared)Object.keys(spec.shared).forEach(i=>{drafts[spec.shared[i]]=answers[i];}); saveDrafts();
+  spec.qs.forEach((q,i)=>{const el=$('qa'+i); if(el)el.disabled=true;}); { const bd=$('qDone'); bd.textContent='수정하기'; bd.classList.remove('primary'); bd.disabled=false; }
+  setQMsg(payload.time+' 제출을 완료했습니다. 수정 후 제출하기를 다시 누를 수 있습니다.','ok');
+}
+
+/* --- 루프 --- */
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(S.playing&&S.tab==='rev'){
+    S.rev.angle+=dt*70; if(S.rev.angle>=360){S.rev.angle=360;S.playing=false;syncButtons();}
+    $('revAngle').value=S.rev.angle; $('revAngleO').textContent=Math.round(S.rev.angle)+'°'; rebuildSolid();
+  }
+  if(S.netLoop&&S.mode==='net'&&S.fold===S.foldTarget){S.netWait=(S.netWait||0)+dt; if(S.netWait>0.7){S.netWait=0; S.foldTarget=1-S.foldTarget;}}
+  if(S.foldTarget!==S.fold&&S.tab!=='rev'){
+    const dir=S.foldTarget>S.fold?1:-1; S.fold=clamp(S.fold+dir*dt*(S.foldSpeed||0.4545),0,1); if((dir>0&&S.fold>=S.foldTarget)||(dir<0&&S.fold<=S.foldTarget))S.fold=S.foldTarget;
+    applyFold(); const fr=$('foldR'); if(fr){fr.value=Math.round(S.fold*100); $('foldO').textContent=Math.round(S.fold*100)+'%';}
+    if(S.fold>=1&&S.flyFlat){S.flyFlat=false; flatView();}
+  }
+  const target=S.split?1:0;
+  if(Math.abs(S.splitAmt-target)>0.001&&S.mode==='section'){
+    const dir=target>S.splitAmt?1:-1; S.splitAmt=clamp(S.splitAmt+dir*dt/0.7,0,1); applyClip(); updateSectionView();
+  }
+  if(S.auto&&S.tab!=='rev'&&!dragging&&!fly)cam.az+=dt*0.4;
+  if(fly){
+    fly.t=Math.min(1,fly.t+dt/0.7); const e=fly.t<.5?2*fly.t*fly.t:1-Math.pow(-2*fly.t+2,2)/2, f=fly.from,t=fly.to;
+    const da=((t.az-f.az+Math.PI)%TAU+TAU)%TAU-Math.PI;
+    cam.az=f.az+da*e; cam.pol=f.pol+(t.pol-f.pol)*e; cam.r=f.r+(t.r-f.r)*e;
+    cam.target.set(f.tx+(t.tx-f.tx)*e,f.ty+(t.ty-f.ty)*e,f.tz+(t.tz-f.tz)*e);
+    if(fly.t>=1)fly=null;
+  }
+  placeCamera(); renderer.render(scene,camera); requestAnimationFrame(loop);
+}
+
+/* --- 교사용 · 탭 잠금 --- */
+const TABS=['poly','plat','rev'];
+let locks={poly:false,plat:true,rev:true};   /* 기본: 다면체만 열림 */
+const tabLocked=t=>!!locks[t];
+let teacher=null; try{teacher=sessionStorage.getItem('sl_teacher');}catch(e){}   /* 교사 코드(이 탭에서만 유지) */
+let tDraft={};
+function lockFetch(opts){return fetch(SHEET_URL+(opts&&opts.q?'?'+opts.q:''),opts&&opts.body?{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(opts.body)}:{}).then(r=>r.json());}
+function applyLocks(auto){
+  document.querySelectorAll('.tabs [role="tab"]').forEach(b=>{const l=tabLocked(b.dataset.tab); b.classList.toggle('locked',l&&!teacher); b.dataset.lock=l?'1':'';
+    b.textContent=({poly:'다면체',plat:'정다면체',rev:'회전체'})[b.dataset.tab]+((l&&!teacher)?' 🔒':'');});
+  document.querySelectorAll('.lockbtn').forEach(b=>{const l=!!locks[b.dataset.lk], nm=({poly:'다면체',plat:'정다면체',rev:'회전체'})[b.dataset.lk];
+    b.hidden=!teacher; b.textContent=l?'🔒':'🔓'; b.classList.toggle('on',l); b.title=nm+(l?' 잠겨 있음 (누르면 열림)':' 열려 있음 (누르면 잠금)'); b.setAttribute('aria-label',b.title);});
+  $('tBar').hidden=!teacher;
+  if(auto&&!teacher&&tabLocked(S.tab)){const open=TABS.find(t=>!tabLocked(t)); if(open)selectTab(open);}
+  const L=tabLocked(S.tab)&&!teacher; $('lockOv').hidden=!L;
+  document.querySelectorAll('#views > :not(.lockov)').forEach(e=>{if(L){e.setAttribute('inert','');}else{e.removeAttribute('inert');}});
+  if(S.tab==='plat'&&S.step===2&&!s1Done()&&!teacher){S.step='choose'; syncView();}
+  if(S.tab==='plat'&&S.step==='choose')renderChooser();
+}
+async function fetchLocks(){
+  if(SHEET_URL){try{const r=await lockFetch({q:'action=locks'}); if(r&&r.locks){const o=r.locks; locks={poly:!!o.poly,plat:('plat' in o)?!!o.plat:true,rev:!!o.rev};}}catch(e){}}
+  else{try{locks=Object.assign(locks,JSON.parse(localStorage.getItem('sl_locks')||'{}'));}catch(e){}}
+  applyLocks(true);
+}
+const _selectTab=selectTab;
+selectTab=function(t){_selectTab(t); applyLocks();};
+function tRender(){ $('tLogin').hidden=!!teacher; $('tPanel').hidden=!teacher; }
+function tModeChanged(){applyLocks(!teacher); renderQuiz(); if(W5.refresh)W5.refresh();}
+function tOpen(){$('tMsg').textContent=''; $('tdlg').hidden=false; tRender(); if(!teacher)$('tcode').focus();}
+$('teacherOpen').addEventListener('click',tOpen);
+document.querySelectorAll('.tclose').forEach(b=>b.addEventListener('click',()=>{$('tdlg').hidden=true;}));
+$('tEnter').addEventListener('click',async()=>{
+  const code=$('tcode').value.trim(); const m=$('tMsg');
+  if(!code){m.textContent='교사 코드를 입력하십시오.'; return;}
+  if(SHEET_URL){
+    m.textContent='확인하는 중입니다…';
+    try{const r=await lockFetch({body:{action:'check',code}}); if(!r||!r.ok){m.textContent='교사 코드가 맞지 않습니다.'; return;}}
+    catch(e){m.textContent='연결에 실패했습니다. 인터넷 연결을 확인하십시오.'; return;}
+  }
+  teacher=code; try{sessionStorage.setItem('sl_teacher',code);}catch(e){}
+  $('tcode').value=''; m.textContent=''; $('tdlg').hidden=true; tModeChanged();
+});
+$('tcode').addEventListener('keydown',e=>{if(e.key==='Enter')$('tEnter').click();});
+function tLeave(){teacher=null; try{sessionStorage.removeItem('sl_teacher');}catch(e){} $('tdlg').hidden=true; $('tNote').textContent=''; tModeChanged();}
+$('tExit').addEventListener('click',tLeave); $('tBarExit').addEventListener('click',tLeave);
+document.querySelectorAll('.lockbtn').forEach(b=>b.addEventListener('click',async()=>{
+  if(!teacher)return; const t=b.dataset.lk, nl=Object.assign({},locks); nl[t]=!nl[t]; const note=$('tNote'); note.textContent='저장하는 중입니다…';
+  if(SHEET_URL){
+    try{const r=await lockFetch({body:{action:'setLocks',code:teacher,locks:nl}});
+      if(!r||!r.ok){note.textContent='저장하지 못했습니다. 교사 코드를 확인하십시오.'; return;}}
+    catch(e){note.textContent='연결에 실패했습니다. 인터넷 연결을 확인하십시오.'; return;}
+  }else{try{localStorage.setItem('sl_locks',JSON.stringify(nl));}catch(e){}}
+  locks=nl; applyLocks(); note.textContent=SHEET_URL?'저장했습니다. 학생 화면에는 잠시 뒤 반영됩니다.':'저장했습니다. (구글 시트가 연결되지 않아 이 기기에만 적용됩니다.)';
+}));
+setInterval(fetchLocks,20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)fetchLocks();});
+
+/* --- STEP 1: 정다면체 만들기 --- */
+(function(){
+'use strict';
+const $=id=>document.getElementById('w5_'+id);
+const R=document.getElementById('w5');
+const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+const TAU=Math.PI*2, EPS=1e-6;
+const MS=[3,4,5,6,7], KS=[3,4,5,6,7,8];
+const MNAME={3:'정삼각형',4:'정사각형',5:'정오각형',6:'정육각형',7:'정칠각형'};
+const MCOL={3:0xA9CBEF,4:0xF7B8C6,5:0xA8DDDA,6:0xFBCB92,7:0xB9B5E0};
+const PLAT={'3_3':'정사면체','3_4':'정팔면체','3_5':'정이십면체','4_3':'정육면체','5_3':'정십이면체'};
+const st={m:3,k:3,f:0,playing:false,dir:1};
+const uid=()=>'sl_w5_'+(user?user.sid:'guest');
+let rec={}; function loadRec(){try{rec=JSON.parse(localStorage.getItem(uid()+'_rec')||'{}');}catch(e){rec={};}}
+const save=()=>{try{localStorage.setItem(uid()+'_rec',JSON.stringify(rec));}catch(e){}};
+loadRec();
+
+/* ----- 수학 ----- */
+function info(m,k){
+  const th=Math.PI-TAU/m, ph=TAU/k, sum=k*th;
+  const deg=Math.round(sum*180/Math.PI*1000)/1000;
+  let kind=Math.abs(sum-TAU)<1e-9?'flat':(sum<TAU?'solid':'over');
+  let af=Math.PI/2;
+  if(kind==='solid'){const c2=(Math.cos(th)-Math.cos(ph))/(1-Math.cos(ph)); af=Math.acos(Math.sqrt(clamp(c2,0,1)));}
+  return {th,ph,sum:deg,kind,af,thDeg:Math.round((180-360/m)*1000)/1000};
+}
+function polyPts(m){const p=[[0,0],[1,0]]; let a=0; const ex=TAU/m; for(let j=2;j<m;j++){a+=ex; const q=p[j-1]; p.push([q[0]+Math.cos(a),q[1]+Math.sin(a)]);} return p;}
+
+/* ----- three ----- */
+const cv=$('gl');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true,preserveDrawingBuffer:true});
+renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+const scene=new THREE.Scene();
+const camera=new THREE.PerspectiveCamera(30,1,0.1,200);
+scene.add(new THREE.AmbientLight(0xffffff,0.7));
+const dl=new THREE.DirectionalLight(0xffffff,0.75); dl.position.set(3,6,4); scene.add(dl);
+const group=new THREE.Group(); scene.add(group);
+const cam={az:0.8,pol:1.05,r:7,rT:7,target:new THREE.Vector3(0,-0.4,0)};
+let edgeCol=0x17212B;
+function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+function dispose(g){while(g.children.length){const o=g.children.pop(); if(o.geometry)o.geometry.dispose(); if(o.material)o.material.dispose();}}
+
+/* ----- 정다면체 완성하기 (애니메이션) ----- */
+function addFace(pts,col){
+  const pos=[],idx=[]; pts.forEach(p=>pos.push(p.x,p.y,p.z)); for(let j=1;j<pts.length-1;j++)idx.push(0,j,j+1);
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals();
+  group.add(new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col,side:THREE.DoubleSide,transparent:true,opacity:0.86,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1})));
+  group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:edgeCol})));
+}
+const COMP_BY={'3_3':['tetra','정사면체'],'3_4':['octa','정팔면체'],'3_5':['icosa','정이십면체'],'4_3':['cube','정육면체'],'5_3':['dodeca','정십이면체']};
+let comp=null, foldUsed=false;
+function prepComp(m,k){
+  const [type,name]=COMP_BY[m+'_'+k];
+  const model=makePlatonic(type), F=model.faces.length;
+  const f0=model.faces[0].idx, e=model.verts[f0[0]].distanceTo(model.verts[f0[1]]), sc=1/e;
+  let V3=model.verts.map(v=>v.clone());
+  const c0=V3.reduce((a,v)=>a.add(v),new THREE.Vector3()).multiplyScalar(1/V3.length);
+  const v0=V3[0].clone();
+  V3=V3.map(v=>v.sub(v0).multiplyScalar(sc));
+  const cen=c0.clone().sub(v0).multiplyScalar(sc);
+  const q1=new THREE.Quaternion().setFromUnitVectors(cen.clone().normalize(),new THREE.Vector3(0,-1,0));
+  V3=V3.map(v=>v.applyQuaternion(q1));
+  const faces=model.faces.map(f=>f.idx.slice());
+  const around=[]; faces.forEach((f,i)=>{if(f.includes(0))around.push(i);});
+  const nb=new Set(); around.forEach(i=>{const f=faces[i], j=f.indexOf(0); nb.add(f[(j+1)%f.length]); nb.add(f[(j+f.length-1)%f.length]);});
+  const azs=[...nb].map(i=>Math.atan2(V3[i].z,V3[i].x)).sort((a,b)=>a-b);
+  const q2=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),azs[0]);
+  V3=V3.map(v=>v.applyQuaternion(q2));
+  const center=V3.reduce((a,v)=>a.add(v),new THREE.Vector3()).multiplyScalar(1/V3.length);
+  const nrm=faces.map(f=>{const c=f.reduce((a,i)=>a.add(V3[i]),new THREE.Vector3()).multiplyScalar(1/f.length); return c.sub(center).normalize();});
+  const placed=around.slice(), inP=new Array(F).fill(false); placed.forEach(i=>inP[i]=true);
+  const edgesOf=f=>f.map((a,i)=>[a,f[(i+1)%f.length]]);
+  const has=(f,a,b)=>edgesOf(f).some(([x,y])=>(x===a&&y===b)||(x===b&&y===a));
+  const order=[];
+  while(placed.length<F){
+    let best=-1,bs=0,bh=null;
+    for(let i=0;i<F;i++){ if(inP[i])continue; let sh=[];
+      placed.forEach(pi=>{edgesOf(faces[i]).forEach(([a,b])=>{if(has(faces[pi],a,b))sh.push({a,b,parent:pi});});});
+      if(sh.length>bs){bs=sh.length;best=i;bh=sh[0];} }
+    inP[best]=true; placed.push(best);
+    const A=V3[bh.a].clone(), B=V3[bh.b].clone(), axis=B.clone().sub(A).normalize();
+    const ang=Math.acos(clamp(nrm[best].dot(nrm[bh.parent]),-1,1));
+    const d1=nrm[best].clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(axis,ang)).dot(nrm[bh.parent]);
+    const d2=nrm[best].clone().applyQuaternion(new THREE.Quaternion().setFromAxisAngle(axis,-ang)).dot(nrm[bh.parent]);
+    order.push({f:best,A,axis,phi:d1>=d2?ang:-ang});
+  }
+  const n=order.length, per=clamp(4.2/Math.max(1,n),0.28,0.8), gap=per*0.35;
+  let R0=0; V3.forEach(v=>{R0=Math.max(R0,Math.abs(v.y));}); R0=R0/2;
+  return {phase:0,done:false,time:0,type,name,F,V3,faces,around,order,per,gap,total:n*(per+gap)+0.5,R:Math.max(0.5,R0)};
+}
+const lblCache={};
+function angLabel(txt,pos){
+  let tex=lblCache[txt];
+  if(!tex){const c=document.createElement('canvas'); let x=c.getContext('2d'); const F='700 36px "Noto Sans KR",sans-serif'; x.font=F;
+    const tw=x.measureText(txt).width+22, CW=Math.max(128,Math.ceil(tw+12)); c.width=CW; c.height=64; x=c.getContext('2d');
+    x.font=F; x.textAlign='center'; x.textBaseline='middle';
+    x.fillStyle='rgba(255,255,255,.82)'; x.beginPath(); x.roundRect?x.roundRect(CW/2-tw/2,10,tw,44,14):x.rect(CW/2-tw/2,10,tw,44); x.fill();
+    x.fillStyle='#1B2A6B'; x.fillText(txt,CW/2,34);
+    tex=new THREE.CanvasTexture(c); tex.userData={w:CW}; lblCache[txt]=tex;}
+  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false}));
+  sp.scale.set(0.34*tex.userData.w/128,0.17,1); sp.renderOrder=10; sp.userData.base=pos.clone(); sp.position.copy(pos); return sp;
+}
+function buildSolid(){
+  const {m,k}=st, c=comp, col=new THREE.Color(MCOL[m]).multiplyScalar(0.82), dots=[new THREE.Vector3(0,0,0)];
+  const fp=i=>c.faces[i].map(j=>c.V3[j].clone());
+  c.around.forEach(i=>{const pts=fp(i); addFace(pts,col); pts.forEach(p=>dots.push(p));});
+  // 꼭짓점의 각(어두운 부채꼴)
+  c.around.forEach(i=>{
+    const f=c.faces[i], j=f.indexOf(0), a=c.V3[f[(j+1)%f.length]].clone().normalize(), b=c.V3[f[(j+f.length-1)%f.length]].clone().normalize();
+    const th=Math.acos(clamp(a.dot(b),-1,1)), w=b.clone().sub(a.clone().multiplyScalar(b.dot(a))).normalize();
+    const Rr=0.3, wp=[new THREE.Vector3()]; for(let t=0;t<=18;t++){const ang=th*t/18; wp.push(a.clone().multiplyScalar(Rr*Math.cos(ang)).add(w.clone().multiplyScalar(Rr*Math.sin(ang))));}
+    const deg=Math.round(th*180/Math.PI*10)/10, right=Math.abs(deg-90)<1e-6, lc=col.clone().multiplyScalar(0.4);
+    if(right){const L=0.17; group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([a.clone().multiplyScalar(L),a.clone().multiplyScalar(L).add(w.clone().multiplyScalar(L)),w.clone().multiplyScalar(L)]),new THREE.LineBasicMaterial({color:lc})));}   /* 직각은 직각 기호 */
+    else group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(wp.slice(1)),new THREE.LineBasicMaterial({color:lc})));   /* 각은 색칠하지 않고 호(선)로만 표시 */
+    group.add(angLabel(deg+'°',a.clone().multiplyScalar(0.5*Math.cos(th/2)).add(w.clone().multiplyScalar(0.5*Math.sin(th/2)))));
+  });
+  const step=c.per+c.gap;
+  c.order.forEach((o,idx)=>{
+    const t0=idx*step; if(c.time<t0)return;
+    const t=clamp((c.time-t0)/c.per,0,1), ease=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    let pts=fp(o.f);
+    if(t<1){const q=new THREE.Quaternion().setFromAxisAngle(o.axis,o.phi*(1-ease)); pts=pts.map(p=>p.sub(o.A).applyQuaternion(q).add(o.A));}
+    addFace(pts,col); pts.forEach(p=>dots.push(p));
+  });
+  group.add(new THREE.Points(new THREE.BufferGeometry().setFromPoints(dots),new THREE.PointsMaterial({color:0x1B2A6B,size:7,sizeAttenuation:false})));
+}
+$('comp').addEventListener('click',()=>{
+  const key=st.m+'_'+st.k; if(!COMP_BY[key])return;
+  st.playing=false; comp=prepComp(st.m,st.k); if(st.f>=0.999){comp.phase=1; const R0=comp.R; cam.target.set(0,-R0*0.6,0); cam.rT=3.6+R0*4.6;}
+  renderInfo(); build();
+});
+function build(){
+  dispose(group);
+  if(comp&&comp.phase===1){buildSolid(); return;}
+  const {m,k,f}=st, I=info(m,k);
+  const a=I.kind==='solid'?(Math.PI/2+(I.af-Math.PI/2)*f):Math.PI/2;
+  const c2=Math.cos(a)**2, s2=Math.sin(a)**2;
+  const del=s2<1e-9?I.th:Math.acos(clamp((Math.cos(I.th)-c2)/s2,-1,1));
+  const D=[]; for(let i=0;i<=k;i++){const az=i*del; D.push(new THREE.Vector3(Math.sin(a)*Math.cos(az),-Math.cos(a),Math.sin(a)*Math.sin(az)));}
+  const P=polyPts(m);
+  for(let i=0;i<k;i++){
+    const u=D[i], v=D[i+1];
+    const w=v.clone().sub(u.clone().multiplyScalar(v.dot(u))).normalize();
+    const lift=I.kind==='over'?i*0.012:0;
+    const to3=(x,y)=>u.clone().multiplyScalar(x).add(w.clone().multiplyScalar(y)).add(new THREE.Vector3(0,lift,0));
+    const pts=P.map(p=>to3(p[0],p[1]));
+    const pos=[],idx=[]; pts.forEach(p=>pos.push(p.x,p.y,p.z)); for(let j=1;j<m-1;j++)idx.push(0,j,j+1);
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setIndex(idx); g.computeVertexNormals();
+    const col=new THREE.Color(MCOL[m]).multiplyScalar(0.82);
+    group.add(new THREE.Mesh(g,new THREE.MeshLambertMaterial({color:col,side:THREE.DoubleSide,transparent:true,opacity:0.86,polygonOffset:true,polygonOffsetFactor:1,polygonOffsetUnits:1})));
+    group.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:edgeCol})));
+    // 꼭짓점의 각
+    const R=0.3, wp=[to3(0,0)], wi=[]; const N=18;
+    for(let t=0;t<=N;t++){const ang=I.th*t/N; wp.push(to3(R*Math.cos(ang),R*Math.sin(ang)));}
+    const lc=col.clone().multiplyScalar(0.4);
+    if(Math.abs(I.thDeg-90)<1e-6){const L=0.17; group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([to3(L,0),to3(L,L),to3(0,L)]),new THREE.LineBasicMaterial({color:lc})));}   /* 직각은 직각 기호 */
+    else group.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(wp.slice(1)),new THREE.LineBasicMaterial({color:lc})));   /* 각은 색칠하지 않고 호(선)로만 표시 */
+    group.add(angLabel(I.thDeg+'°',to3(0.5*Math.cos(I.th/2),0.5*Math.sin(I.th/2))));
+  }
+  const dot=new THREE.Mesh(new THREE.SphereGeometry(0.055,16,12),new THREE.MeshBasicMaterial({color:0x1B2A6B})); group.add(dot);
+}
+function extent(){const P=polyPts(st.m); let e=0; P.forEach(p=>{e=Math.max(e,Math.hypot(p[0],p[1]));}); return e;}
+function fit(){const E=Math.max(1.4,extent()); const asp=Math.min(1,camera.aspect||1); cam.rT=(E*3.1+1.6)/Math.max(0.62,asp); cam.target.set(0,-E*0.2,0);}
+function placeCam(){
+  camera.position.set(cam.target.x+cam.r*Math.sin(cam.pol)*Math.sin(cam.az),cam.target.y+cam.r*Math.cos(cam.pol),cam.target.z+cam.r*Math.sin(cam.pol)*Math.cos(cam.az));
+  camera.lookAt(cam.target);
+}
+function resize(){const s=$('stage'); const w=s.clientWidth,h=s.clientHeight; if(!w||!h)return; renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();}
+window.addEventListener('resize',resize);
+if(window.ResizeObserver)new ResizeObserver(resize).observe($('stage'));
+/* 조작 */
+const ptrs=new Map(); let pinch0=0, r0=0, drag=false;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); drag=true; if(ptrs.size===2){const [a,b]=[...ptrs.values()]; pinch0=Math.hypot(a.x-b.x,a.y-b.y); r0=cam.rT;}});
+cv.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId); if(!p)return;
+  if(ptrs.size===2){p.x=e.clientX;p.y=e.clientY; const [a,b]=[...ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); if(pinch0>0){cam.rT=clamp(r0*pinch0/d,3,40); cam.r=cam.rT;} return;}
+  cam.az-=(e.clientX-p.x)*0.008; cam.pol=clamp(cam.pol-(e.clientY-p.y)*0.008,0.15,Math.PI-0.15); p.x=e.clientX; p.y=e.clientY;
+});
+const up=e=>{ptrs.delete(e.pointerId); if(!ptrs.size)drag=false; pinch0=0;};
+cv.addEventListener('pointerup',up); cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault(); cam.rT=clamp(cam.rT*Math.exp(e.deltaY*0.0012),3,40); cam.r=cam.rT;},{passive:false});
+
+/* ----- UI ----- */
+function kindLabel(kd){return kd==='solid'?'ok':kd==='flat'?'flat':'bad';}
+function record(){const key=st.m+'_'+st.k; rec[key]=info(st.m,st.k).kind; save();}
+function renderMx(){
+  if(!$('mx'))return;
+  let h='<tr><th></th>'+KS.map(k=>`<th>${k}개</th>`).join('')+'</tr>';
+  MS.forEach(m=>{
+    h+=`<tr><th class="r">${MNAME[m]}</th>`;
+    KS.forEach(k=>{
+      const key=m+'_'+k, kd=rec[key], I=info(m,k), cur=(m===st.m&&k===st.k);
+      let cls='cell'+(kd?' '+kindLabel(kd):'')+(cur?' cur':''), s='?', d='';
+      if(kd){s=kd==='solid'?'○':kd==='flat'?'△':'✕'; d=I.sum+'°';}
+      h+=`<td><button class="${cls}" data-m="${m}" data-k="${k}" aria-label="${MNAME[m]} ${k}개"><span class="s">${s}</span><span class="d">${d}</span></button></td>`;
+    });
+    h+='</tr>';
+  });
+  $('mx').innerHTML=h;
+  $('mx').querySelectorAll('.cell').forEach(b=>b.addEventListener('click',()=>{st.m=+b.dataset.m; st.k=+b.dataset.k; st.f=0; st.playing=false; sel();}));
+  const okN=Object.keys(rec).filter(x=>rec[x]==='solid').length, all=Object.keys(rec).length, tot=MS.length*KS.length;
+  $('prog').innerHTML=`입체가 되는 조합 <b>${okN}</b>가지 발견 · 살펴본 칸 ${all} / ${tot}`+(all===tot?`<br><b style="color:var(--accent)">모든 칸을 살펴보았습니다.</b> 입체가 되는 조합은 몇 가지인가요?`:'');
+}
+function renderInfo(){
+  const {m,k}=st, I=info(m,k);
+  const nm=PLAT[m+'_'+k];
+  if(comp&&comp.done&&comp.name){$('hudName').textContent=comp.name; $('hudSub').textContent=`${MNAME[m]} ${comp.F}개로 완성`;}
+  else{$('hudName').textContent=`${MNAME[m]} ${k}개`;
+    $('hudSub').textContent='';}
+  $('eq').innerHTML=`${MNAME[m]}의 한 내각의 크기 <b>${I.thDeg}°</b> × <b>${k}개</b> = <b>${I.sum}°</b>`;
+  const scale=Math.max(420,I.sum+20);
+  $('gauge').innerHTML=Array.from({length:k},(_, i)=>`<i style="width:${I.thDeg/scale*100}%;background:#${MCOL[m].toString(16).padStart(6,'0')}"></i>`).join('')+`<div class="mark" style="left:${360/scale*100}%"></div>`;
+  $('gaugeL').innerHTML=`<span style="left:0%;transform:none">0°</span><span style="left:${360/scale*100}%">360°</span>`;
+  const can=I.kind==='solid';
+  $('fold').disabled=!!comp; $('play').disabled=!!(comp&&!comp.done);
+  $('comp').disabled=!(can&&nm&&(foldUsed||st.f>=0.999))||!!(comp&&!comp.done); $('comp').classList.toggle('primary',!$('comp').disabled);
+  $('comp').textContent=(comp&&!comp.done)?'완성하는 중…':'정다면체 완성하기';
+  $('kVal').textContent=k+'개';
+  $('kMinus').disabled=k<=KS[0]; $('kPlus').disabled=k>=KS[KS.length-1];
+  $('mChips').querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.m===m)));
+  $('fold').value=Math.round(st.f*100);
+  $('play').textContent=st.playing?'멈추기':'자동 접기';
+}
+function sel(){comp=null; foldUsed=false; if(!R.hidden||loaded)record(); fit(); build(); renderInfo(); renderMx(); if(typeof gate==='function'&&$('subMsg'))gate();}
+$('mChips').innerHTML=MS.map(m=>`<button class="chip" data-m="${m}" aria-pressed="false">${MNAME[m]}</button>`).join('');
+$('mChips').dataset.n=MS.length;
+$('mChips').querySelectorAll('.chip').forEach(b=>b.addEventListener('click',()=>{st.m=+b.dataset.m; st.k=3; st.f=0; st.playing=false; sel();}));
+$('kMinus').addEventListener('click',()=>{st.k=Math.max(KS[0],st.k-1); st.f=0; st.playing=false; sel();});
+$('kPlus').addEventListener('click',()=>{st.k=Math.min(KS[KS.length-1],st.k+1); st.f=0; st.playing=false; sel();});
+$('fold').addEventListener('input',e=>{if(info(st.m,st.k).kind!=='solid'){e.target.value=0; st.f=0; denyFold(); return;} comp=null; st.f=e.target.value/100; st.playing=false; build(); renderInfo(); $('play').textContent='자동 접기';});
+$('play').addEventListener('click',()=>{if(info(st.m,st.k).kind!=='solid'){st.playing=false; st.f=0; denyFold(); return;} if(comp){comp=null; fit(); renderInfo();} st.playing=!st.playing; if(st.playing){foldUsed=true;} if(st.playing&&st.f>=0.999){st.f=0;} $('play').textContent=st.playing?'멈추기':'자동 접기'; renderInfo();});
+$('resetView').addEventListener('click',()=>{cam.az=0.8; cam.pol=1.05; fit();});
+$('resetAll').addEventListener('click',()=>{st.f=0; st.playing=false; cam.az=0.8; cam.pol=1.05; sel(); cam.r=cam.rT;});
+const M5=['6','4','4','3','3','정삼각형, 정사각형, 정오각형','한 꼭짓점에 모인 면의 각의 합이 360° 이상이 되면 입체가 만들어지지 않는다. 또한 한 꼭짓점에는 면이 적어도 3개 모여야 한다.','5'];
+const TA=()=>[...R.querySelectorAll('[data-q]')];
+function saveText(){if(teacher)return; try{localStorage.setItem(uid()+'_txt3',JSON.stringify(TA().map(t=>t.value)));}catch(e){}}
+function loadText(){if(teacher){TA().forEach((x,i)=>{x.value=M5[i]||'';}); return;} let t=[]; try{t=JSON.parse(localStorage.getItem(uid()+'_txt3')||'[]');}catch(e){} TA().forEach((x,i)=>{x.value=t[i]||'';});}
+loadText();
+TA().forEach(t=>t.addEventListener('input',()=>{saveText(); gate();}));
+
+
+/* ----- STEP 1 마치기 ----- */
+function okCount(){return Object.keys(rec).filter(k=>rec[k]==='solid').length;}
+function missing(){
+  const m=[]; if(!user)m.push('위에서 학번과 이름으로 로그인하십시오.');
+  if(okCount()<5)m.push(`입체가 되는 조합을 5가지 모두 찾으십시오. (${okCount()}/5)`);
+  if(TA().some(t=>!t.value.trim()))m.push('탐구내용 정리 4문항에 모두 답하십시오.');
+  return m;
+}
+const s1Open=()=>{try{return localStorage.getItem('sl_s1open_'+(user?user.sid:'guest'))==='1';}catch(e){return false;}};
+const setS1Open=v=>{try{if(v)localStorage.setItem('sl_s1open_'+(user?user.sid:'guest'),'1'); else localStorage.removeItem('sl_s1open_'+(user?user.sid:'guest'));}catch(e){}};
+const s1Locked=()=>!teacher&&s1Done()&&!s1Open()&&!TA().some(t=>!t.value.trim());
+const s1TimeKey=()=>'sl_s1time_'+(user?user.sid:'guest');
+const s1Time=()=>{try{return localStorage.getItem(s1TimeKey())||'';}catch(e){return '';}};
+const s1DoneMsg=()=>(s1Time()?s1Time()+' ':'')+'제출을 완료했습니다. STEP2로 이동하거나, 수정 후 제출하기를 다시 누를 수 있습니다.';
+function s1Msg(t,warn){const m=$('subMsg'); m.textContent=t; m.style.color=warn?'var(--warn)':'var(--ok)';}
+function gate(){
+  const lock=s1Locked(), m=missing();
+  TA().forEach(t=>{t.disabled=lock;});
+  $('submit').textContent=lock?'수정하기':'제출하기'; $('submit').classList.toggle('primary',!lock); $('submit').disabled=false; $('nextBtn').hidden=!(s1Done()&&!teacher&&lock);
+  if(teacher)s1Msg('교사용 화면입니다. 모범답안이 채워져 있습니다.');
+  else if(lock)s1Msg(s1DoneMsg());
+  else if(!teacher&&s1Done())s1Msg('수정할 수 있습니다. [제출하기]를 다시 눌러야 선생님께 전달됩니다.');
+  else s1Msg(m.length?m[0]:'모두 채웠습니다. [제출하기]를 누르면 선생님께 전달되고 STEP 2로 이동할 수 있습니다.');
+}
+$('saveBtn').addEventListener('click',()=>{
+  if(teacher){s1Msg('교사용 화면에서는 저장하지 않습니다.',true); return;}
+  saveText(); const b=$('saveBtn'); b.textContent='저장됨 ✓'; b.classList.add('on'); setTimeout(()=>{b.textContent='임시저장'; b.classList.remove('on');},1500);
+  s1Msg('임시저장을 완료했습니다. [제출하기]를 눌러야 선생님께 전달됩니다.');
+});
+$('nextBtn').addEventListener('click',()=>{ goStep(2); });
+$('submit').addEventListener('click',async()=>{
+  if(teacher){s1Msg('교사용 화면에서는 제출하지 않습니다.',true); return;}
+  if(s1Locked()){setS1Open(true); gate(); return;}
+  const m=missing();
+  if(m.length){s1Msg(m[0],true); return;}
+  const answers=TA().map(t=>t.value.trim());
+  const nm=x=>String(x||'').replace(/\s/g,'');
+  const correct=[nm(answers[0])==='6'?'O':'X',nm(answers[1])==='4'?'O':'X',nm(answers[2])==='4'?'O':'X',nm(answers[3])==='3'?'O':'X',nm(answers[4])==='3'?'O':'X',(/삼각형/.test(answers[5])&&/사각형/.test(answers[5])&&/오각형/.test(answers[5])&&!/육|칠|팔|구각|십/.test(answers[5]))?'O':'X',nm(answers[7])==='5'?'O':'X'];
+  const payload={time:new Date().toLocaleString('ko-KR'),sid:user.sid,name:user.name,code:user.code||'',tab:'정다면체',shape:'STEP 1 정다면체 만들기',n:okCount(),answers,correct,score:correct.filter(c=>c==='O').length,total:correct.length};
+  $('submit').disabled=true; s1Msg('제출하는 중입니다…');
+  let res='local';
+  if(SHEET_URL){try{await fetch(SHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}); res='sent';}catch(e){res='fail';}}
+  $('submit').disabled=false;
+  if(res==='fail'){s1Msg('전송에 실패했습니다. 인터넷 연결을 확인하고 [제출하기]를 다시 누르십시오.',true); return;}
+  markS1Done(); setS1Open(false); try{localStorage.setItem(s1TimeKey(),payload.time);}catch(e){} gate();
+  s1Msg(s1DoneMsg());
+});
+
+/* 접을 수 없는 조합: 도형이 떨리고 화면에 붉은 빛이 잠깐 비친다 */
+let denyT=0;
+function denyFold(){ if(denyT>0)return; denyT=0.6; const s=$('stage'); s.classList.remove('deny'); void s.offsetWidth; s.classList.add('deny'); setTimeout(()=>s.classList.remove('deny'),750); }
+let loaded=false; let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000); last=now;
+  if(comp&&!comp.done){
+    if(comp.phase===0){st.f=Math.min(1,st.f+dt/1.0); $('fold').value=Math.round(st.f*100); if(st.f>=1){comp.phase=1; comp.time=0; const R0=comp.R; cam.target.set(0,-R0*0.6,0); cam.rT=3.6+R0*4.6;} build();}
+    else{comp.time+=dt; if(comp.time>=comp.total){comp.time=comp.total; comp.done=true; renderInfo();} build();}
+  }
+  if(st.playing){
+    st.f+=dt/2.2; if(st.f>=1){st.f=1; st.playing=false; $('play').textContent='자동 접기';}
+    $('fold').value=Math.round(st.f*100); build();
+  }
+  if(denyT>0){denyT=Math.max(0,denyT-dt); group.position.x=Math.sin(denyT*80)*0.07*(denyT/0.6);} else if(group.position.x!==0)group.position.x=0;
+  group.children.forEach(o=>{ if(o.isSprite&&o.userData.base){o.position.copy(o.userData.base).add(camera.position.clone().sub(o.userData.base).normalize().multiplyScalar(0.14));} });   /* 각도 글자가 면에 묻히지 않도록 카메라 쪽으로 살짝 띄운다 */
+  cam.r+=(cam.rT-cam.r)*Math.min(1,dt*6);
+  if(!R.hidden){placeCam(); hideBackLabels(); renderer.render(scene,camera);} requestAnimationFrame(loop);
+}
+/* 다른 면에 가려진(뒤쪽) 각도 표시는 숨긴다. 면과 거의 나란히 보이는 각도는 그대로 보인다 */
+const RC=new THREE.Raycaster();
+function hideBackLabels(){
+  group.updateMatrixWorld(true);
+  const faces=group.children.filter(o=>o.isMesh&&o.geometry.type!=='SphereGeometry');
+  group.children.forEach(o=>{ if(!(o.isSprite&&o.userData.base))return;
+    const P=o.position.clone().applyMatrix4(group.matrixWorld), d=P.clone().sub(camera.position), L=d.length();
+    RC.set(camera.position,d.normalize()); RC.near=0; RC.far=L;
+    o.visible=!RC.intersectObjects(faces,false).some(h=>h.distance<L-0.02); });
+}
+function theme(){const e=css('--edge'); if(e){edgeCol=new THREE.Color(e).getHex(); build();}}
+try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',theme);}catch(e){}
+theme(); resize(); fit(); cam.r=cam.rT; sel();
+Object.assign(W5,{refresh(){loadText(); gate();},show(){resize(); fit(); cam.r=cam.rT; build(); renderInfo(); renderMx(); gate();},resize,theme,reload(){
+  let g={},gt=[]; try{g=JSON.parse(localStorage.getItem('sl_w5_guest_rec')||'{}'); gt=JSON.parse(localStorage.getItem('sl_w5_guest_txt3')||'[]');}catch(e){}
+  loadRec(); if(user){Object.keys(g).forEach(k=>{if(!rec[k])rec[k]=g[k];}); save();}
+  loadText(); if(user&&TA().every(t=>!t.value.trim())){TA().forEach((x,i)=>{x.value=gt[i]||'';}); saveText();}
+  sel(); gate();}});
+requestAnimationFrame(loop);
+})();
+
+/* --- 시작 --- */
+loadSubs(); syncLogin(); applyTheme(); rebuildSolid(); syncCtl(); renderUnder(); renderQuiz(); updateHud(); resize(); placeCamera(); syncView(); fetchLocks();
+window.__lab={S,get model(){return model;},get net(){return net;},setMode,toggleSec,selectTab};
+requestAnimationFrame(loop);
+})();
+/* 아이콘 설명: 마우스는 올렸을 때만(누른 직후에는 숨김), 터치는 누르면 잠깐(켜는 동작과 초기화 버튼만) */
+document.querySelectorAll('.stagebtns .btn').forEach(b=>{
+  b.addEventListener('mouseleave',()=>b.classList.remove('nt'));
+  b.addEventListener('click',()=>{
+    const toggle=/js-(auto|vtx|net)/.test(b.className);
+    if(window.matchMedia('(hover:hover)').matches){ b.classList.add('nt'); return; }
+    document.querySelectorAll('.stagebtns .btn.tip').forEach(x=>x.classList.remove('tip'));
+    if(toggle&&!b.classList.contains('on'))return;
+    b.classList.add('tip'); clearTimeout(b._tt); b._tt=setTimeout(()=>b.classList.remove('tip'),1300);
+  });
+});
+</script>
+</body></html>
