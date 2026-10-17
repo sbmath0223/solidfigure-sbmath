@@ -224,6 +224,10 @@ input[type=range]{width:100%; accent-color:var(--accent); margin:0; height:24px}
   .grid>aside:first-child .grp{margin-bottom:10px}
   #w5>aside:first-child .grp{margin-bottom:10px}
 }
+/* 호스팅 서비스가 화면 오른쪽 아래에 띄우는 배지(Powered by …)에 안내문구가 가려지지 않도록, 오른쪽 패널 맨 아래에 여백을 둠 */
+.grid>aside:last-child{padding-bottom:76px}
+#w5.grid>aside:last-child{padding-bottom:76px}
+@media (max-width:900px){.foot{padding-bottom:70px}}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 
 .views{position:relative; min-height:0; display:flex; flex-direction:column}
@@ -878,7 +882,10 @@ function bandGeoms(loops,n,w){
       if(t.lengthSq()<1e-12){off.push(V(0,0,0));continue;} t.normalize(); off.push(n.clone().cross(t).multiplyScalar(w/2));}
     for(let i=0;i<m;i++){const j=(i+1)%m;
       const a1=L[i].clone().add(off[i]),a2=L[i].clone().sub(off[i]),b1=L[j].clone().add(off[j]),b2=L[j].clone().sub(off[j]);
-      pos.push(a1.x,a1.y,a1.z,a2.x,a2.y,a2.z,b1.x,b1.y,b1.z, a2.x,a2.y,a2.z,b2.x,b2.y,b2.z,b1.x,b1.y,b1.z);}
+      pos.push(a1.x,a1.y,a1.z,a2.x,a2.y,a2.z,b1.x,b1.y,b1.z, a2.x,a2.y,a2.z,b2.x,b2.y,b2.z,b1.x,b1.y,b1.z);
+      /* 단면이 옆으로 기울어져 거의 선처럼 보일 때도 테두리가 사라지지 않도록, 단면에 수직인 방향의 띠도 함께 만든다 */
+      const h=n.clone().multiplyScalar(w/2), c1=L[i].clone().add(h),c2=L[i].clone().sub(h),d1=L[j].clone().add(h),d2=L[j].clone().sub(h);
+      pos.push(c1.x,c1.y,c1.z,c2.x,c2.y,c2.z,d1.x,d1.y,d1.z, c2.x,c2.y,c2.z,d2.x,d2.y,d2.z,d1.x,d1.y,d1.z);}
   });
   return Float32Array.from(pos);
 }
