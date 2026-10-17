@@ -1039,6 +1039,7 @@ const capFillMat=new THREE.MeshLambertMaterial({color:0x2B6CB0,side:THREE.Double
 const capBandMat=new THREE.MeshBasicMaterial({color:0x17212B,side:THREE.DoubleSide,polygonOffset:true,polygonOffsetFactor:-3,polygonOffsetUnits:-3});
 function capGroup(){const g=new THREE.Group(); const f=new THREE.Mesh(new THREE.BufferGeometry(),capFillMat), b=new THREE.Mesh(new THREE.BufferGeometry(),capBandMat); f.renderOrder=1.5;b.renderOrder=1.6; g.add(f,b); return g;}
 const capMarkMat=new THREE.LineBasicMaterial({color:0x17212B,depthTest:false,transparent:true,opacity:0.45});
+const capDashMat=new THREE.LineDashedMaterial({color:0x17212B,dashSize:0.07,gapSize:0.06,transparent:true,opacity:0.7,depthFunc:THREE.GreaterDepth,depthWrite:false});   /* 단면 테두리 중 도형에 가려진 부분(점선) */
 const capA=capGroup(), capB=capGroup();
 const planeQuad=new THREE.Mesh(new THREE.PlaneGeometry(4,4),new THREE.MeshBasicMaterial({color:0x2FA7BA,transparent:true,opacity:0.16,side:THREE.DoubleSide,depthWrite:false}));
 planeQuad.renderOrder=15;
@@ -1226,6 +1227,8 @@ function secRange(){
 function setCap(grp,cap,n){
   while(grp.children.length>2){const o=grp.children.pop(); if(o.geometry)o.geometry.dispose();}
   if(cap.marks&&cap.marks.length){const mg=new THREE.BufferGeometry(); mg.setAttribute('position',new THREE.BufferAttribute(cap.marks,3)); const ml=new THREE.LineSegments(mg,capMarkMat); ml.renderOrder=7; grp.add(ml);}
+  if(cap.loops&&cap.loops.length){const sg=[]; cap.loops.forEach(L=>{for(let i=0;i<L.length;i++){const p=L[i],q=L[(i+1)%L.length]; sg.push(p.x,p.y,p.z,q.x,q.y,q.z);}});
+    const dg=new THREE.BufferGeometry(); dg.setAttribute('position',new THREE.BufferAttribute(Float32Array.from(sg),3)); const dl=new THREE.LineSegments(dg,capDashMat); dl.computeLineDistances(); dl.renderOrder=1.4; grp.add(dl);}
   const [f,b]=grp.children; f.geometry.dispose(); b.geometry.dispose();
   f.geometry=new THREE.BufferGeometry(); f.geometry.setAttribute('position',new THREE.BufferAttribute(cap.fill,3));
   b.geometry=new THREE.BufferGeometry(); b.geometry.setAttribute('position',new THREE.BufferAttribute(bandGeoms(cap.loops,n,0.022),3));
@@ -1639,7 +1642,7 @@ function vtxDark(edge){const c=/^#[def]/i.test(edge)?0x8FB0FF:0x1B2A6B; setA.vtx
 function applyTheme(){
   const edge=cssv('--edge')||'#17212B';
   [setA,setB].forEach(m=>{m.edge.color.set(edge); m.dash.color.set(edge); m.gen.color.set(edge); m.mark.color.set(edge); m.hull.color.set(edge); });
-  vtxDark(edge); axisMat.color.set(edge); rodMat.color.set(edge); rodDash.color.set(edge); capBandMat.color.set(edge); capMarkMat.color.set(edge);
+  vtxDark(edge); axisMat.color.set(edge); rodMat.color.set(edge); rodDash.color.set(edge); capBandMat.color.set(edge); capMarkMat.color.set(edge); capDashMat.color.set(edge);
   if(S.tab==='rev'&&revP)buildAxis(revP);
   if(!dc.hidden)drawRedraw();
   if(W5.theme)W5.theme();
@@ -1765,7 +1768,7 @@ function rewriteQuiz(){
 }
 async function submitQuiz(){
   const spec=curQuiz; if(!spec||spec.disabled)return; if(teacher){setQMsg('교사용 화면에서는 제출하지 않습니다.','warn'); return;}
-  if(!user){setQMsg('먼저 위에서 학번, 이름, 코드번호를 입력해 로그인하십시오.','warn'); return;}
+  if(!user){setQMsg('제출하기 전에 학번, 이름, 코드번호를 입력해 로그인합니다.','warn'); return;}
   const answers=spec.qs.map((q,i)=>String($('qa'+i).value).trim());
   const blank=answers.findIndex(a=>!a); if(blank>=0){setQMsg('빈칸이 있습니다. 모든 칸을 채우면 제출할 수 있습니다.','warn'); const el=$('qa'+blank); if(el)el.focus(); return;}
   const correct=spec.grade?spec.grade(answers):spec.correct?answers.map((a,i)=>(String(+a)===spec.correct[i]||a.replace(/\s/g,'')===spec.correct[i])?'O':'X'):[];
@@ -2109,7 +2112,7 @@ TA().forEach(t=>t.addEventListener('input',()=>{saveText(); gate();}));
 /* ----- STEP 1 마치기 ----- */
 function okCount(){return Object.keys(rec).filter(k=>rec[k]==='solid').length;}
 function missing(){
-  const m=[]; if(!user)m.push('먼저 위에서 학번, 이름, 코드번호를 입력해 로그인하십시오.');
+  const m=[]; if(!user)m.push('제출하기 전에 학번, 이름, 코드번호를 입력해 로그인합니다.');
   if(okCount()<5)m.push(`입체가 되는 조합을 5가지 모두 찾으십시오. (${okCount()}/5)`);
   if(TA().some(t=>!t.value.trim()))m.push('탐구내용 정리 4문항에 모두 답하십시오.');
   return m;
