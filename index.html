@@ -647,8 +647,10 @@ function randomBase(n){
   }
   return null;
 }
+const SQ_PRISM_ROT=-0.23;   /* 밑면이 정사각형인 사각기둥만: 기본 시점에서 옆면 두 개가 모두 보이도록 살짝 돌려 둠(라디안) */
 function makePrism(n,h,r=1,fs,irr){
-  const B=basePts(n,r,irr), verts=[]; B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
+  let B=basePts(n,r,irr); const verts=[];
+  if(n===4&&!(irr&&irr.length===n)){const c=Math.cos(SQ_PRISM_ROT),sn=Math.sin(SQ_PRISM_ROT); B=B.map(p=>[p[0]*c+p[1]*sn,-p[0]*sn+p[1]*c]);} B.forEach(p=>verts.push(V(p[0],-h/2,p[1])));
   B.forEach(p=>verts.push(V(p[0],h/2,p[1])));
   const faces=[range(n),range(n).map(i=>n+i)], kinds=['base','base'];
   for(let i=0;i<n;i++){faces.push([i,(i+1)%n,n+(i+1)%n,n+i]); kinds.push('side');}
