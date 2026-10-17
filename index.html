@@ -1249,6 +1249,7 @@ function axisPos(){
   const c=axisXZ(); if(!c)return null; const n=secNormal(); return c[0]*n.x+c[1]*n.z;
 }
 function snapSecPos(v){
+  if(S.tab==='rev'&&S.secKind==='par')return Math.abs(v)<0.05?0:v;   /* 회전체: 회전축과 평행한 평면이 회전축을 지나는 위치(0)에 슬라이더가 붙게 함 */
   if(S.tab!=='poly'||S.secKind!=='perp'||!model)return v;
   const a=axisPos(); if(a==null||!isFinite(a))return v;
   return Math.abs(v-a)<0.035?a:v;
