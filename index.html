@@ -44,7 +44,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .login .who{font-weight:700}
 .login input::placeholder{color:transparent}
 .login form{position:relative}
-.login .lmsg{position:absolute; left:0; top:calc(100% + 4px); z-index:30; width:max-content; max-width:100%; padding:5px 10px; border-radius:8px; background:var(--panel); border:1px solid var(--warn); box-shadow:var(--shadow); font-size:12.5px; line-height:1.35; color:var(--warn)}
+.login .lmsg{position:absolute; right:0; top:calc(100% + 4px); z-index:30; width:max-content; max-width:100%; padding:5px 10px; border-radius:8px; background:var(--panel); border:1px solid var(--warn); box-shadow:var(--shadow); font-size:12.5px; line-height:1.35; color:var(--warn)}
 .login .lmsg[hidden]{display:none}
 .tabs{display:flex; gap:8px; flex-wrap:wrap}
 .tabg{display:inline-flex; align-items:center; gap:4px}
@@ -1683,9 +1683,10 @@ $('loginForm').addEventListener('submit',async e=>{
     if(!r||!r.ok){loginMsg('학번, 이름, 코드번호를 다시 확인하십시오.'); return;}
   }
   loginMsg(''); user={sid,name,code}; try{localStorage.setItem('sl_user',JSON.stringify(user));}catch(err){}
-  loadSubs(); if(SHEET_URL&&r)applyRemote(r); loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();
+  loadSubs(); if(SHEET_URL&&r)applyRemote(r); loadSubs();
+  syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();
 });
-$('logoutBtn').addEventListener('click',()=>{user=null; try{localStorage.removeItem('sl_user');}catch(e){} $('sid').value=''; $('sname').value=''; $('scode').value=''; loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();});
+$('logoutBtn').addEventListener('click',()=>{user=null; try{localStorage.removeItem('sl_user'); ['sl_draft_guest','sl_sub_guest','sl_w5_guest_rec','sl_w5_guest_txt3'].forEach(k=>localStorage.removeItem(k));}catch(e){}   /* 로그인 전(손님) 입력도 함께 지워서 로그아웃하면 빈 화면이 된다 */ $('sid').value=''; $('sname').value=''; $('scode').value=''; loadSubs(); syncLogin(); renderQuiz(); if(W5.reload)W5.reload(); if(S.step==='choose')renderChooser();});
 
 const BASE_OPTS=['삼각형','사각형','오각형','육각형','칠각형','팔각형','구각형','십각형'];
 const SIDE_OPTS=['삼각형','직사각형','사다리꼴','평행사변형','정사각형'];
